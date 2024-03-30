@@ -21,7 +21,11 @@ if (NOT EXISTS ${Live555_DIR})
 endif()  
 
 #sources live555
-set(Live555_INCLUDE_DIRS ${Live555_DIR}/groupsock/include ${Live555_DIR}/liveMedia/include ${Live555_DIR}/UsageEnvironment/include ${Live555_DIR}/BasicUsageEnvironment/include CACHE INTERNAL "")
+set(Live555_INCLUDE_DIRS 
+    ${Live555_DIR}/groupsock/include 
+    ${Live555_DIR}/liveMedia/include 
+    ${Live555_DIR}/UsageEnvironment/include 
+    ${Live555_DIR}/BasicUsageEnvironment/include CACHE INTERNAL "")
 FILE(GLOB LIVESOURCE 
     ${Live555_DIR}/groupsock/*.c
     ${Live555_DIR}/liveMedia/*.c* 

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10...3.21)
-project(camera_v4l_rtsp LANGUAGES CXX)
+project(camera_v4l_rtsp)
 set(CMAKE_CXX_STANDARD 17)
 
 if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
@@ -33,14 +33,13 @@ include("FetchLive")
 include("FetchJsoncpp")  
 include("FetchDrogon")
 
-#add_subdirectory(3rdparty/spdlog)
 add_subdirectory(3rdparty/jsoncpp)
 #hack for drogon see jsoncpp
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${JSONCPP_INCLUDE_DIRS}" "${CMAKE_BINARY_DIR}/3rdparty/jsoncpp/include/json")   
 add_subdirectory(3rdparty/drogon)
 
-ADD_EXECUTABLE(test_app main.cpp)
-TARGET_LINK_LIBRARIES(test_app drogon live555)
+# basic project
+add_subdirectory(src)
 
 message("")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")
