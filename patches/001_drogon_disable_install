@@ -1,0 +1,38 @@
+---
+--- a/drogon/CMakeLists.txt
++++ a/drogon/CMakeLists.txt
+@@ -669,13 +669,13 @@ endif (BUILD_TESTING)
+
+ # Installation
+
+-install(TARGETS ${PROJECT_NAME}
+-    EXPORT DrogonTargets
+-    RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+-    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
+-    LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib)
++#install(TARGETS ${PROJECT_NAME}
++#    EXPORT DrogonTargets
++#    RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
++#    ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
++#    LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib)
+
+-install(FILES ${DROGON_HEADERS} DESTINATION ${INSTALL_INCLUDE_DIR}/drogon)
++#install(FILES ${DROGON_HEADERS} DESTINATION ${INSTALL_INCLUDE_DIR}/drogon)
+
+ set(ORM_HEADERS
+     orm_lib/inc/drogon/orm/ArrayParser.h
+@@ -798,10 +798,10 @@ install(FILES
+     COMPONENT dev)
+
+ # Install the export set for use with the install-tree
+-install(EXPORT DrogonTargets
+-    DESTINATION "${INSTALL_DROGON_CMAKE_DIR}"
+-    NAMESPACE Drogon::
+-    COMPONENT dev)
++#install(EXPORT DrogonTargets
++#    DESTINATION "${INSTALL_DROGON_CMAKE_DIR}"
++#    NAMESPACE Drogon::
++#    COMPONENT dev)
+
+ # Doxygen documentation
+ find_package(Doxygen OPTIONAL_COMPONENTS dot dia)

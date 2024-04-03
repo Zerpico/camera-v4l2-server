@@ -25,14 +25,19 @@ SET(BUILD_MYSQL  OFF CACHE BOOL "Build MYSQL" FORCE)
 SET(BUILD_SQLITE OFF CACHE BOOL "Build SQLITE" FORCE)
 SET(BUILD_REDIS  OFF CACHE BOOL "Build REDIS" FORCE)
 SET(LIBPQ_BATCH_MODE OFF CACHE BOOL "Build Batch POSTGRESQL" FORCE)
-
+SET(SPDLOG_FMT_EXTERNAL_HO ON CACHE BOOL "Use header-only spdlog" FORCE)
+SET(USE_SPDLOG ON CACHE BOOL "Use spdlog as logger" FORCE)
 
 #fetch dependecies
 include("FetchZlib")  
 include("FetchLive")
+include("FetchFmt")
+include("FetchSpdlog")
 include("FetchJsoncpp")  
 include("FetchDrogon")
 
+add_subdirectory(3rdparty/fmt)
+add_subdirectory(3rdparty/spdlog)
 add_subdirectory(3rdparty/jsoncpp)
 #hack for drogon see jsoncpp
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${JSONCPP_INCLUDE_DIRS}" "${CMAKE_BINARY_DIR}/3rdparty/jsoncpp/include/json")   

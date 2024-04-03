@@ -13,6 +13,9 @@ if (NOT EXISTS ${Drogon_DIR})
     file(REMOVE ${CMAKE_SOURCE_DIR}/${Drogon_file}.zip)
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${Drogon_file}" "${Drogon_DIR}")        
     execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "${Drogon_file}")
+
+    #patch CMakeLists.txt for comment install target (conflicts with spdlog)
+    EXECUTE_PROCESS(COMMAND patch -d ${CMAKE_SOURCE_DIR}/3rdparty -f -p 1 -i ${CMAKE_SOURCE_DIR}/patches/001_drogon_disable_install RESULT_VARIABLE patch_result)
 endif()  
 
 #check and download trantor for drogon as dependency
@@ -30,4 +33,7 @@ if(RES_LEN EQUAL 0)
     file(REMOVE ${CMAKE_SOURCE_DIR}/trantor-1.5.17.zip)
     execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "trantor-1.5.17" "${Drogon_DIR}/trantor")
     execute_process(COMMAND ${CMAKE_COMMAND} -E remove_directory "trantor-1.5.17")    
+
+    #patch CMakeLists.txt for comment install target (conflicts with spdlog)
+    EXECUTE_PROCESS(COMMAND patch -d ${CMAKE_SOURCE_DIR}/3rdparty -f -p 1 -i ${CMAKE_SOURCE_DIR}/patches/002_trantor_disable_install RESULT_VARIABLE patch_result)
 endif()

@@ -1,0 +1,48 @@
+---
+--- a/drogon/trantor/CMakeLists.txt
++++ a/drogon/trantor/CMakeLists.txt
+@@ -334,18 +334,18 @@ source_group("Private Headers"
+              FILES
+              ${private_headers})
+
+-install(TARGETS trantor
++#install(TARGETS trantor
+                 # IMPORTANT: Add the trantor library to the "export-set"
+-        EXPORT TrantorTargets
+-        RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
+-        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
+-        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib)
+-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/exports/trantor/exports.h
+-        DESTINATION ${INSTALL_INCLUDE_DIR}/trantor)
+-install(FILES ${public_net_headers}
+-        DESTINATION ${INSTALL_INCLUDE_DIR}/trantor/net)
+-install(FILES ${public_utils_headers}
+-        DESTINATION ${INSTALL_INCLUDE_DIR}/trantor/utils)
++#        EXPORT TrantorTargets
++#        RUNTIME DESTINATION "${INSTALL_BIN_DIR}" COMPONENT bin
++#        ARCHIVE DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib
++#        LIBRARY DESTINATION "${INSTALL_LIB_DIR}" COMPONENT lib)
++#install(FILES ${CMAKE_CURRENT_BINARY_DIR}/exports/trantor/exports.h
++#        DESTINATION ${INSTALL_INCLUDE_DIR}/trantor)
++#install(FILES ${public_net_headers}
++#        DESTINATION ${INSTALL_INCLUDE_DIR}/trantor/net)
++#install(FILES ${public_utils_headers}
++#        DESTINATION ${INSTALL_INCLUDE_DIR}/trantor/utils)
+
+ include(CMakePackageConfigHelpers)
+ # ... for the install tree
+@@ -372,10 +372,10 @@ install(
+   COMPONENT dev)
+
+ # Install the export set for use with the install-tree
+-install(EXPORT TrantorTargets
+-        DESTINATION "${INSTALL_TRANTOR_CMAKE_DIR}"
+-        NAMESPACE Trantor::
+-        COMPONENT dev)
++#install(EXPORT TrantorTargets
++#        DESTINATION "${INSTALL_TRANTOR_CMAKE_DIR}"
++#        NAMESPACE Trantor::
++#        COMPONENT dev)
+
+ # Doxygen documentation
+ find_package(Doxygen OPTIONAL_COMPONENTS dot dia)

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.18)
+cmake_minimum_required(VERSION 3.10...3.21)
 project(camera-v4l2-server)
 
 # camera library
