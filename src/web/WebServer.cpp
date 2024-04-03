@@ -36,6 +36,6 @@ WebServer::~WebServer()
 
 void WebServer::run()
 {
-    spdlog::info("run webserver {} {}", __FILE__, __LINE__);
+    spdlog::info("run webserver");
     app().run();
 }

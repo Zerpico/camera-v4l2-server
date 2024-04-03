@@ -1,7 +1,7 @@
 
 #only on Windows
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+if (WIN32)
 
   set(Zlib_URL "https://github.com/madler/zlib/archive/refs/tags/v1.3.1.zip")
   set(Zlib_file "zlib-1.3.1")

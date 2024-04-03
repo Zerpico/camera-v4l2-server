@@ -19,7 +19,7 @@ add_library (webserver STATIC ${WEB_SRC_FILES})
 target_include_directories(webserver PUBLIC ${PROJECT_SOURCE_DIR}/web)	
 target_link_libraries(webserver camera_device drogon)
 
+
 # main executable
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries (${PROJECT_NAME} camera_device rtspserver webserver)
-#TARGET_LINK_LIBRARIES(test_app drogon live555)

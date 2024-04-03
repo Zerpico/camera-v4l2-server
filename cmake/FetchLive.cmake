@@ -4,7 +4,7 @@ set(Live555_CFLAGS -DBSD=1 -DSOCKLEN_T=socklen_t -D_FILE_OFFSET_BITS=64 -D_LARGE
 set(Live555_DIR  "${CMAKE_SOURCE_DIR}/3rdparty/live555" CACHE INTERNAL "")    
 
 if(CMAKE_CXX_STANDARD LESS 20)
-    set(Live555_CFLAGS ${LIVE555CFLAGS} -DNO_STD_LIB)
+    list(APPEND Live555_CFLAGS -DNO_STD_LIB)
 endif()
 
 # function for download Live555

@@ -25,10 +25,12 @@ SET(BUILD_MYSQL  OFF CACHE BOOL "Build MYSQL" FORCE)
 SET(BUILD_SQLITE OFF CACHE BOOL "Build SQLITE" FORCE)
 SET(BUILD_REDIS  OFF CACHE BOOL "Build REDIS" FORCE)
 SET(LIBPQ_BATCH_MODE OFF CACHE BOOL "Build Batch POSTGRESQL" FORCE)
+SET(TRANTOR_USE_TLS "" CACHE STRING "TLS provider for trantor. Valid options: 'openssl', 'botan' or ''" FORCE)
 SET(SPDLOG_FMT_EXTERNAL_HO ON CACHE BOOL "Use header-only spdlog" FORCE)
 SET(USE_SPDLOG ON CACHE BOOL "Use spdlog as logger" FORCE)
 
 #fetch dependecies
+include("PatchFile")
 include("FetchZlib")  
 include("FetchLive")
 include("FetchFmt")
