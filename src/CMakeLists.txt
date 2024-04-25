@@ -33,7 +33,7 @@ ENDIF()
 
 # main executable
 add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries(${PROJECT_NAME} sub::cameralib spdlog sub::weblib sub::rtsplib)
+target_link_libraries(${PROJECT_NAME} spdlog sub::cameralib sub::weblib sub::rtsplib)
 
 # Добавляем флаги для правильной линковки статичной библиотеки в динамическую для Unix систем
 if (NOT WIN32)
