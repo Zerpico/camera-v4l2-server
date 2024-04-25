@@ -1,4 +1,3 @@
-#define MAKEDLL
 #include "WebServer.h"
 #include <iostream>
 #include <drogon/drogon.h>

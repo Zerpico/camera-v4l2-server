@@ -27,7 +27,9 @@ ENDIF()
 add_library(sub::weblib ALIAS web_server) #set alias
 target_include_directories(web_server PUBLIC ${PROJECT_SOURCE_DIR}/web_server)
 target_link_libraries(web_server sub::cameralib drogon)
-
+IF(WIN32)
+  target_compile_definitions(web_server PUBLIC MAKEDLL)
+ENDIF()  
 
 # main executable
 add_executable(${PROJECT_NAME} main.cpp)
