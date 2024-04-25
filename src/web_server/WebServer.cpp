@@ -1,3 +1,4 @@
+#define MAKEDLL
 #include "WebServer.h"
 #include <iostream>
 #include <drogon/drogon.h>
@@ -17,7 +18,7 @@ WebServer::WebServer()
 
     auto logger = trantor::Logger::getSpdLogger();
 
-    // set console logger
+    // // set console logger
     spdlog::sink_ptr console_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
     console_sink->set_level((spdlog::level::level_enum)logLevel);
     logger->sinks().push_back(console_sink);

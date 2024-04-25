@@ -22,3 +22,7 @@ endif()
 
 set(JSONCPP_INCLUDE_DIRS ${Jsoncpp_DIR}/include CACHE INTERNAL "")
 set(JSONCPP_LIBRARIES jsoncpp_static CACHE INTERNAL "jsoncpp_static")
+include_directories(${Jsoncpp_DIR})
+
+#hack for drogon see jsoncpp
+execute_process(COMMAND ${CMAKE_COMMAND} -E copy_directory "${JSONCPP_INCLUDE_DIRS}" "${CMAKE_BINARY_DIR}/3rdparty/jsoncpp/include/json")   

@@ -1,6 +1,4 @@
-
 #only on Windows
-
 if (WIN32)
 
   set(Zlib_URL "https://github.com/madler/zlib/archive/refs/tags/v1.3.1.zip")
@@ -46,8 +44,8 @@ if (WIN32)
     execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/3rdparty/zlib-build OUTPUT_QUIET)
     #install
     execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/3rdparty/zlib-build --target install OUTPUT_QUIET)
-
-    execute_process(COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/3rdparty/zlib-install/lib/zlib${Zlib_SUFFIX_LIB}.lib ${CMAKE_BINARY_DIR}/3rdparty/zlib-install/bin/zlib${Zlib_SUFFIX_LIB}.dll)
-    set(ZLIB_ROOT ${CMAKE_BINARY_DIR}/3rdparty/zlib-install)
+  
   endif()
 endif()
+
+set(ZLIB_ROOT ${CMAKE_BINARY_DIR}/3rdparty/zlib-install)

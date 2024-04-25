@@ -1,9 +1,11 @@
-#include "CameraRtspServer.h"
+#include "CameraDevice.h"
+#include "RtspServer.h"
 #include "WebServer.h"
 
 int main()
 {
-    auto rtsp = new CameraRtspServer();
-    auto web = new WebServer();
-    web->run();
+    auto camera = new CameraDevice();
+    auto webserver = new WebServer();
+    auto rtsp = new RtspServer();
+    webserver->run();
 }

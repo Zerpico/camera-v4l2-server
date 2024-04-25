@@ -36,3 +36,5 @@ build/
 out/
 bin/
 3rdparty/
+
+test_packets/
