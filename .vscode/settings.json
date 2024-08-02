@@ -77,5 +77,6 @@
         "complex": "cpp",
         "source_location": "cpp",
         "typeindex": "cpp"
-    }
+    },
+    "search.useIgnoreFiles": false
 }

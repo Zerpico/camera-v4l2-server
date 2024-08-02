@@ -18,3 +18,4 @@ endif()
 # set variable
 set(SPDLOG_INCLUDE_DIRS ${Spdlog_DIR}/include CACHE INTERNAL "")
 set(SPDLOG_LIBRARIES spdlog CACHE INTERNAL "spdlog")
+include_directories(${SPDLOG_INCLUDE_DIRS})

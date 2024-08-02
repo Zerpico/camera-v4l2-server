@@ -27,9 +27,8 @@ if (WIN32)
   set(ZLIB_SRC_DIR ${OUTPUT_BUILD_DIR}/${ZLIB_SRC_FOLDER_NAME})
   set(ZLIB_BUILD_EXAMPLES OFF)
 
-  if (CMAKE_BUILD_TYPE EQUAL "DEBUG" OR CMAKE_BUILD_TYPE EQUAL "Debug")
+  if (CMAKE_BUILD_TYPE STREQUAL "DEBUG" OR CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(Zlib_SUFFIX_LIB "d")
-    message("Zlib_SUFFIX_LIB = ${Zlib_SUFFIX_LIB}")
   endif()
   
   if(NOT EXISTS ${CMAKE_BINARY_DIR}/3rdparty/zlib-install)    
@@ -45,9 +44,8 @@ if (WIN32)
     #build
     execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/3rdparty/zlib-build OUTPUT_QUIET)
     #install
-    execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/3rdparty/zlib-build --target install OUTPUT_QUIET)
-
-    execute_process(COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/3rdparty/zlib-install/lib/zlib${Zlib_SUFFIX_LIB}.lib ${CMAKE_BINARY_DIR}/3rdparty/zlib-install/bin/zlib${Zlib_SUFFIX_LIB}.dll)
-    set(ZLIB_ROOT ${CMAKE_BINARY_DIR}/3rdparty/zlib-install)
+    execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/3rdparty/zlib-build --target install OUTPUT_QUIET)    
   endif()
+
+  set(ZLIB_ROOT ${CMAKE_BINARY_DIR}/3rdparty/zlib-install CACHE INTERNAL "")
 endif()
