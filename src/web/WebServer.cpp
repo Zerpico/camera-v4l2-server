@@ -13,7 +13,7 @@ WebServer::WebServer()
         .setLogLevel(logLevel)
         .setLogPath(".", "log", 1000000, 1024 * 8096, true)
         .setupFileLogger()
-        .addListener("0.0.0.0", 80);
+        .addListener("0.0.0.0", 8080);
 
     auto logger = trantor::Logger::getSpdLogger();
 
@@ -36,6 +36,6 @@ WebServer::~WebServer()
 
 void WebServer::run()
 {
-    spdlog::info("run webserver");
+    spdlog::info("run webserver on :8080");
     app().run();
 }

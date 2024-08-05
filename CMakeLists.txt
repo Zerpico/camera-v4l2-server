@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10...3.27 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
 
 #####################################################################################################
 # PROJECT INFORMATION
@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(NOT DEFINED CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")
-endif() 
+endif()
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_SOURCE_DIR}/cmake/")
 include(FetchContent)
@@ -45,7 +45,7 @@ if(NOT Jsoncpp_FOUND)
   SET(BUILD_SHARED_LIBS OFF)
   FetchContent_MakeAvailable(jsoncpp)
   # stupid hack for include jsoncpp include
-  if (WIN32)
+  if (BUILD_WTH_JSONCPP)
     include_directories("${jsoncpp_SOURCE_DIR}/include")
   endif()
 endif()
@@ -100,7 +100,9 @@ FetchContent_Declare(drogon
   GIT_TAG        v1.9.6
   OVERRIDE_FIND_PACKAGE)
 
-set(BUILD_SHARED_LIBS ON)
+if(WIN32)
+  set(BUILD_SHARED_LIBS ON)
+endif()
 set(BUILD_EXAMPLES OFF CACHE BOOL "Build examples" FORCE)
 set(BUILD_ORM OFF CACHE BOOL "Build with ORM" FORCE)
 set(USE_SUBMODULE ON CACHE BOOL "Build submodules" FORCE)
