@@ -4,7 +4,7 @@
 
 int main()
 {
-    auto rtsp = new CameraRtspServer();
     auto web = new WebServer();
+    auto rtsp = new CameraRtspServer();
     web->run();
 }

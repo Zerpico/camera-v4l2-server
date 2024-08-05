@@ -1,11 +1,12 @@
-
 #only on Windows
+if (WIN32 AND MSVC)
+find_package(ZLIB QUIET)
 
-if (WIN32)
-
+if(NOT ZLIB_FOUND)
+  set(BUILD_WTH_ZLIB ON)
   set(Zlib_URL "https://github.com/madler/zlib/archive/refs/tags/v1.3.1.zip")
   set(Zlib_file "zlib-1.3.1")
-  set(Zlib_DIR  "${CMAKE_SOURCE_DIR}/3rdparty/zlib" CACHE INTERNAL "")    
+  set(Zlib_DIR  "${CMAKE_BINARY_DIR}/_deps/zlib-src" CACHE INTERNAL "")    
 
   # function for download Zlib
   if (NOT EXISTS ${Zlib_DIR})
@@ -31,21 +32,24 @@ if (WIN32)
     set(Zlib_SUFFIX_LIB "d")
   endif()
   
-  if(NOT EXISTS ${CMAKE_BINARY_DIR}/3rdparty/zlib-install)    
+  if(NOT EXISTS ${CMAKE_BINARY_DIR}/_deps/zlib-install)    
     message(STATUS "Pre-build Zlib library ... ")
 
     #configure
     execute_process(COMMAND ${CMAKE_COMMAND}
-      -S ${CMAKE_CURRENT_SOURCE_DIR}/3rdparty/zlib
-      -B ${CMAKE_BINARY_DIR}/3rdparty/zlib-build
+      -S ${Zlib_DIR}
+      -B ${CMAKE_BINARY_DIR}/_deps/zlib-build
       -G ${CMAKE_GENERATOR}
-      -D CMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/3rdparty/zlib-install OUTPUT_QUIET)
+      -D CMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/_deps/zlib-install OUTPUT_QUIET)
 
     #build
-    execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/3rdparty/zlib-build OUTPUT_QUIET)
+    execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/zlib-build OUTPUT_QUIET)
     #install
-    execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/3rdparty/zlib-build --target install OUTPUT_QUIET)    
+    execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/zlib-build --target install OUTPUT_QUIET)    
+
+    execute_process(COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/_deps/zlib-install/lib/zlib${Zlib_SUFFIX_LIB}.lib ${CMAKE_BINARY_DIR}/_deps/zlib-install/bin/zlib${Zlib_SUFFIX_LIB}.dll)
   endif()
 
-  set(ZLIB_ROOT ${CMAKE_BINARY_DIR}/3rdparty/zlib-install CACHE INTERNAL "")
+  set(ZLIB_ROOT ${CMAKE_BINARY_DIR}/_deps/zlib-install CACHE INTERNAL "")
+endif()
 endif()

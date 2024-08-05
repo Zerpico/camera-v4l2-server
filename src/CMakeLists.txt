@@ -54,13 +54,3 @@ target_link_libraries(webserver device drogon spdlog)
 #####################
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries (${PROJECT_NAME} device rtspserver webserver)
-
-IF(WIN32)  
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(Zlib_SUFFIX_LIB "d")
-  endif()
-  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD        
-      COMMAND ${CMAKE_COMMAND} -E copy_if_different  
-          "${ZLIB_ROOT}/bin/zlib${Zlib_SUFFIX_LIB}.dll"      # <--this is in-file
-          $<TARGET_FILE_DIR:camera-v4l2-server>)                 # <--this is out-file path
-ENDIF()
