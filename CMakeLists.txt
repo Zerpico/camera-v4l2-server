@@ -54,10 +54,7 @@ endif()
 ##################################
 ## Zlib: try find or downloaded it
 ##################################
-#find_package(ZLIB QUIET)
-#if(NOT ZLIB_FOUND)
-  include("FetchZlib")
-#endif()
+include("FetchZlib")
 
 ################################
 # FMT
