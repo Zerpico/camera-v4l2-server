@@ -25,6 +25,11 @@ SET(BUILD_EXAMPLES OFF CACHE BOOL "Build examples" FORCE)
 ####################
 include("FetchLive")
 
+####################
+# FFmpeg
+####################
+include("FetchFFmpeg")
+
 ##################################
 ## Jsoncpp: try find or downloaded it
 ##################################
@@ -42,7 +47,7 @@ if(NOT Jsoncpp_FOUND)
   SET(JSONCPP_WITH_CMAKE_PACKAGE ON CACHE BOOL "Generate and install cmake package files" FORCE)
   SET(BUILD_STATIC_LIBS ON)
   SET(BUILD_OBJECT_LIBS ON)
-  SET(BUILD_SHARED_LIBS OFF)
+  SET(BUILD_SHARED_LIBS OFF CACHE INTERNAL OFF)    
   FetchContent_MakeAvailable(jsoncpp)
   # stupid hack for include jsoncpp include
   if (BUILD_WTH_JSONCPP)
@@ -98,7 +103,7 @@ FetchContent_Declare(drogon
   OVERRIDE_FIND_PACKAGE)
 
 if(WIN32)
-  set(BUILD_SHARED_LIBS ON)
+  set(BUILD_SHARED_LIBS ON CACHE INTERNAL ON)    
 endif()
 set(BUILD_EXAMPLES OFF CACHE BOOL "Build examples" FORCE)
 set(BUILD_ORM OFF CACHE BOOL "Build with ORM" FORCE)
@@ -109,15 +114,18 @@ set(BUILD_MYSQL OFF CACHE BOOL "Build with mysql" FORCE)
 set(BUILD_SQLITE OFF CACHE BOOL "Build witg sqlite" FORCE)
 set(BUILD_REDIS OFF CACHE BOOL "Build with redis" FORCE)
 set(BUILD_CTL OFF CACHE BOOL "Build drogon ctl" FORCE)
-FetchContent_MakeAvailable(drogon)
 
-#stupid hack for force using jsoncpp as static
-IF(BUILD_WTH_JSONCPP)
- execute_process(COMMAND ${PATCH} -d ${drogon_SOURCE_DIR} -f -p 1 -i ${CMAKE_SOURCE_DIR}/patches/003_drogon_jsoncpp_static_win32
- TIMEOUT 15
- COMMAND_ECHO STDOUT
- RESULT_VARIABLE ret)
- message("===== patched JSONCPP")
+if(NOT drogon_POPULATED)
+  fetchcontent_populate(drogon)
+
+  #stupid hack for force using jsoncpp as static
+  IF(BUILD_WTH_JSONCPP)
+    execute_process(COMMAND ${PATCH} -d ${drogon_SOURCE_DIR} -f -p 1 -i ${CMAKE_SOURCE_DIR}/patches/003_drogon_jsoncpp_static_win32
+    TIMEOUT 15
+    COMMAND_ECHO STDOUT
+    RESULT_VARIABLE ret)
+  endif()
+  add_subdirectory(${drogon_SOURCE_DIR} ${drogon_BUILD_DIR})
 endif()
 
 # basic project
