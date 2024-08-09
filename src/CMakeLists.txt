@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10...3.21)
-project(camera-v4l2-server)
+project(NtStreamerApp)
 
 if (MSVC)
   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
@@ -12,12 +12,20 @@ else()
 endif()
 
 ########################
+# common library
+########################
+aux_source_directory("common" COMMON_SRC_FILES)
+add_library (NtCommon ${BUILDLIB_TYPE} ${COMMON_SRC_FILES})
+target_include_directories(NtCommon PUBLIC ${PROJECT_SOURCE_DIR}/common)	
+target_link_libraries(NtCommon spdlog)
+
+########################
 # device library
 ########################
 aux_source_directory("device" CAMERA_SRC_FILES)
-add_library (device ${BUILDLIB_TYPE} ${CAMERA_SRC_FILES})
-target_include_directories(device PUBLIC ${PROJECT_SOURCE_DIR}/device)	
-target_link_libraries(device spdlog PkgConfig::FFMPEG)
+add_library (NtDevice ${BUILDLIB_TYPE} ${CAMERA_SRC_FILES})
+target_include_directories(NtDevice PUBLIC ${PROJECT_SOURCE_DIR}/device)	
+target_link_libraries(NtDevice spdlog PkgConfig::FFMPEG)
 
 #########################
 # rtsp library + Live555
@@ -41,29 +49,29 @@ if(MSVC)
 endif()
 
 aux_source_directory("rtsp" RTSP_SRC_FILES)
-add_library (rtspserver ${BUILDLIB_TYPE} ${LIVESOURCE} ${RTSP_SRC_FILES})
-target_include_directories(rtspserver PUBLIC ${PROJECT_SOURCE_DIR}/rtsp)
-target_include_directories(rtspserver PUBLIC ${Live555_INCLUDE_DIRS})	
-target_compile_definitions(rtspserver PUBLIC ${Live555_CFLAGS})
+add_library (NtRtsp ${BUILDLIB_TYPE} ${LIVESOURCE} ${RTSP_SRC_FILES})
+target_include_directories(NtRtsp PUBLIC ${PROJECT_SOURCE_DIR}/rtsp)
+target_include_directories(NtRtsp PUBLIC ${Live555_INCLUDE_DIRS})	
+target_compile_definitions(NtRtsp PUBLIC ${Live555_CFLAGS})
 if(WIN32)
   set(WINSOCK Ws2_32)
 endif()
-target_link_libraries(rtspserver ${WINSOCK} spdlog device)
+target_link_libraries(NtRtsp ${WINSOCK} spdlog NtDevice)
 
 #####################
 # web library
 #####################
 aux_source_directory("web" WEB_SRC_FILES)
-add_library (webserver ${BUILDLIB_TYPE} ${WEB_SRC_FILES})
-target_include_directories(webserver PUBLIC ${PROJECT_SOURCE_DIR}/web)	
-target_link_libraries(webserver device drogon spdlog)
+add_library (NtWeb ${BUILDLIB_TYPE} ${WEB_SRC_FILES})
+target_include_directories(NtWeb PUBLIC ${PROJECT_SOURCE_DIR}/web)	
+target_link_libraries(NtWeb NtDevice drogon spdlog)
 
 
 #####################
 # main executable
 #####################
 add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries (${PROJECT_NAME} device rtspserver webserver)
+target_link_libraries (${PROJECT_NAME} NtDevice NtRtsp NtWeb)
 
 #set(FFMPEG_DIR  "${CMAKE_BINARY_DIR}/_deps/ffmpeg-install"  CACHE INTERNAL "")
 # copy ffmpeg DLLs if WIN

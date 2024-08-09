@@ -40,12 +40,13 @@ if(NOT ZLIB_FOUND)
       -S ${Zlib_DIR}
       -B ${CMAKE_BINARY_DIR}/_deps/zlib-build
       -G ${CMAKE_GENERATOR}
+      -D CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
       -D CMAKE_INSTALL_PREFIX=${CMAKE_BINARY_DIR}/_deps/zlib-install OUTPUT_QUIET)
 
     #build
-    execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/zlib-build OUTPUT_QUIET)
+    execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/zlib-build --config ${CMAKE_BUILD_TYPE} OUTPUT_QUIET)
     #install
-    execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/zlib-build --target install OUTPUT_QUIET)    
+    execute_process(COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR}/_deps/zlib-build --config ${CMAKE_BUILD_TYPE} --target install OUTPUT_QUIET)    
 
     execute_process(COMMAND ${CMAKE_COMMAND} -E remove -f ${CMAKE_BINARY_DIR}/_deps/zlib-install/lib/zlib${Zlib_SUFFIX_LIB}.lib ${CMAKE_BINARY_DIR}/_deps/zlib-install/bin/zlib${Zlib_SUFFIX_LIB}.dll)
   endif()
