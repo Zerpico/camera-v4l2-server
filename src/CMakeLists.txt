@@ -12,14 +12,6 @@ else()
 endif()
 
 ########################
-# common library
-########################
-aux_source_directory("common" COMMON_SRC_FILES)
-add_library (NtCommon ${BUILDLIB_TYPE} ${COMMON_SRC_FILES})
-target_include_directories(NtCommon PUBLIC ${PROJECT_SOURCE_DIR}/common)	
-target_link_libraries(NtCommon spdlog)
-
-########################
 # device library
 ########################
 aux_source_directory("device" CAMERA_SRC_FILES)
