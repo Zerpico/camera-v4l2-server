@@ -32,6 +32,7 @@ NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     m_buffer_size = av_image_get_buffer_size((AVPixelFormat)m_buffer_frame->format, m_buffer_frame->width, m_buffer_frame->height, 4);
     m_buffer = std::make_unique<uint8_t[]>(m_buffer_size);
 
+    m_encoder = new NtVideoEncoder("libx264");
     // fill_frame(*m_buffer_frame, m_buffer.get());
 }
 

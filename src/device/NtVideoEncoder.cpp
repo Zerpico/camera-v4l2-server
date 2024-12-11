@@ -3,18 +3,6 @@
 #include <spdlog/spdlog.h>
 #include <memory>
 
-extern "C"
-{
-#ifndef __STDC_CONSTANT_MACROS
-#define __STDC_CONSTANT_MACROS
-#endif
-
-#include <libavutil/avutil.h>
-#include <libavutil/imgutils.h>
-#include <libswscale/swscale.h>
-#include <libavcodec/avcodec.h>
-}
-
 struct AVCodecContext_deleter
 {
     void operator()(AVCodecContext *p) const
@@ -32,57 +20,57 @@ struct AVCodecContext_deleter2
     }
 };
 
-NtVideoEncoder::NtVideoEncoder(/* args */)
+NtVideoEncoder::NtVideoEncoder(std::string codec_name, int width, int height, AVPixelFormat format, double fps)
+    : _codecCtx(nullptr)
 {
-    std::string codec_name = "libx264";
-    int width = 640;
-    int height = 480;
-    double fps = 25.0;
-    AVPixelFormat format = AVPixelFormat::AV_PIX_FMT_YUV420P;
     int gop_size = fps;
-
     int ret = 0;
-    const AVCodec *codec = NULL;
 
-    codec = avcodec_find_encoder_by_name(codec_name.c_str());
+    const AVCodec *codec = avcodec_find_encoder_by_name(codec_name.c_str());
 
-    if (codec)
+    if (!codec)
     {
         spdlog::error("Can't open codec by name '{0}'", codec_name);
         return;
     }
 
-    auto codec_ctx = std::shared_ptr<AVCodecContext>(avcodec_alloc_context3(codec), [](AVCodecContext *pi)
-                                                     { avcodec_free_context(&pi); });
-    if (codec_ctx)
+    auto dst_format = avcodec_find_best_pix_fmt_of_list(codec->pix_fmts, AVPixelFormat::AV_PIX_FMT_YUV420P, 1, &ret);
+    if (format != dst_format)
+    {
+        spdlog::warn("Codec format redefined to: {}", (int)dst_format);
+    }
+    format = dst_format;
+
+    _codecCtx = std::shared_ptr<AVCodecContext>(avcodec_alloc_context3(codec), [](AVCodecContext *pi)
+                                                { avcodec_free_context(&pi); });
+    if (!_codecCtx)
     {
         spdlog::error("Can't allocate codec context");
         return;
     }
 
     auto framerate = av_d2q(fps, 100);
-
-    codec_ctx->width = width;
-    codec_ctx->height = height;
-    codec_ctx->framerate = framerate;
-    codec_ctx->pix_fmt = format;
-    codec_ctx->time_base = av_inv_q(framerate); // Frames per second
+    _codecCtx->width = width;
+    _codecCtx->height = height;
+    _codecCtx->framerate = framerate;
+    _codecCtx->pix_fmt = format;
+    _codecCtx->time_base = av_inv_q(framerate); // Frames per second
     if (gop_size > 0)
-        codec_ctx->gop_size = gop_size; // Intra frames per x P frames
+        _codecCtx->gop_size = gop_size; // Intra frames per x P frames
     // CodecCtx->bit_rate = config.BitRate;     // average bit_rate
 
     if (codec->id == AVCodecID::AV_CODEC_ID_H264 || codec->id == AVCodecID::AV_CODEC_ID_HEVC ||
         codec->id == AVCodecID::AV_CODEC_ID_MPEG4 || codec->id == AVCodecID::AV_CODEC_ID_MPEG2VIDEO)
     {
-        codec_ctx->thread_count = 1;
+        _codecCtx->thread_count = 1;
     }
 
     if (codec->id == AVCodecID::AV_CODEC_ID_MPEG4 || codec->id == AVCodecID::AV_CODEC_ID_MPEG2VIDEO)
     {
-        codec_ctx->max_b_frames = 1;
+        _codecCtx->max_b_frames = 1;
     }
 
-    ret = avcodec_open2(codec_ctx.get(), codec, NULL);
+    ret = avcodec_open2(_codecCtx.get(), codec, NULL);
     if (ret != 0)
         return;
 }

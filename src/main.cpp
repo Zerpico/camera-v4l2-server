@@ -3,14 +3,18 @@
 #include "NtRtspApp.h"
 #include "NtDummyVideoDevice.h"
 #include <spdlog/spdlog.h>
+#include "avcodec_utils.h"
 
 int main()
 {
     auto web = new WebServer();
-    auto dummy_dev = NtDummyVideoDevice::createNew(DummyVideoDeviceParameters{});
-    auto rtsp = new NtRtspApp();
-    auto device = new CameraDeviceSource();
 
-    rtsp->Start();
-    web->run();
+    set_external_avlogger(spdlog::default_logger());
+
+    auto dummy_dev = NtDummyVideoDevice::createNew(DummyVideoDeviceParameters{});
+
+    // auto rtsp = new NtRtspApp();
+
+    // rtsp->Start();
+    // web->run();
 }

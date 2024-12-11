@@ -1,6 +1,7 @@
 #pragma once
 
 #include "NtDeviceInterface.h"
+#include "NtVideoEncoder.h"
 #include <string>
 #include <memory>
 #include <ctime>
@@ -15,11 +16,14 @@ extern "C"
 struct DummyVideoDeviceParameters
 {
     DummyVideoDeviceParameters(const int width = 640, const int height = 480, const double fps = 25.0, const char *title_text = NULL, const bool add_timer = false)
-        : m_devName("dummy_video"), m_width(width), m_height(height), m_fps(fps) //, m_title(title_text), m_add_timer(add_timer)
+        : m_devName("dummy_video"), m_width(width), m_height(height), m_fps(fps)
     {
+        if (title_text)
+            m_title = title_text;
+        m_add_timer = add_timer;
     }
 
-    std::string m_devName;
+    std::string m_devName{};
     int m_width;
     int m_height;
     double m_fps;
@@ -71,4 +75,6 @@ private:
             {0, 0, 255},     // Blue
             {0, 0, 0},       // Black
         };
+
+    NtVideoEncoder *m_encoder = NULL;
 };
