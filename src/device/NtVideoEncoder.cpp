@@ -3,28 +3,12 @@
 #include <spdlog/spdlog.h>
 #include <memory>
 
-struct AVCodecContext_deleter
-{
-    void operator()(AVCodecContext *p) const
-    {
-        if (p)
-            avcodec_free_context(&p);
-    }
-};
-
-struct AVCodecContext_deleter2
-{
-    void operator()(AVCodecContext *ctx)
-    {
-        avcodec_free_context(&ctx);
-    }
-};
-
 NtVideoEncoder::NtVideoEncoder(std::string codec_name, int width, int height, AVPixelFormat format, double fps)
     : _codecCtx(nullptr)
 {
     int gop_size = fps;
     int ret = 0;
+    AVDictionary *optPtr = NULL;
 
     const AVCodec *codec = avcodec_find_encoder_by_name(codec_name.c_str());
 
@@ -63,6 +47,9 @@ NtVideoEncoder::NtVideoEncoder(std::string codec_name, int width, int height, AV
         codec->id == AVCodecID::AV_CODEC_ID_MPEG4 || codec->id == AVCodecID::AV_CODEC_ID_MPEG2VIDEO)
     {
         _codecCtx->thread_count = 1;
+        av_dict_set(&optPtr, "profile", "baseline", 0);
+        av_dict_set(&optPtr, "preset", "fast", 0);
+        av_dict_set(&optPtr, "tune", "zerolatency", 0);
     }
 
     if (codec->id == AVCodecID::AV_CODEC_ID_MPEG4 || codec->id == AVCodecID::AV_CODEC_ID_MPEG2VIDEO)
@@ -70,11 +57,25 @@ NtVideoEncoder::NtVideoEncoder(std::string codec_name, int width, int height, AV
         _codecCtx->max_b_frames = 1;
     }
 
-    ret = avcodec_open2(_codecCtx.get(), codec, NULL);
+    _codecCtx->flags &= ~AV_CODEC_FLAG_GLOBAL_HEADER;
+
+    ret = avcodec_open2(_codecCtx.get(), codec, &optPtr);
     if (ret != 0)
         return;
+
+    if (optPtr != NULL)
+        spdlog::warn("Some codec option not used");
+
+    _outPacket = std::shared_ptr<AVPacket>(av_packet_alloc(), [](AVPacket *ptr)
+                                           { av_packet_free(&ptr); });
 }
 
 NtVideoEncoder::~NtVideoEncoder()
 {
+}
+
+void NtVideoEncoder::Push(AVFrame *frame)
+{
+    int ret = avcodec_send_frame(_codecCtx.get(), frame);
+    ret = avcodec_receive_packet(_codecCtx.get(), _outPacket.get());
 }

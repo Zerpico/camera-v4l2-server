@@ -1,5 +1,15 @@
 #pragma once
 
+extern "C"
+{
+#include <libavutil\mem.h> //for av_malloc and av_free
+}
+
+#include "spdlog/spdlog.h"
+#include <memory>
+#include <string>
+#include <iostream>
+
 #define MEM_ALIGN 64
 
 enum class CodecType
@@ -28,15 +38,6 @@ struct AVFrame
     uint32_t timestamp;
 };
 
-extern "C"
-{
-#include <libavutil\mem.h> //for av_malloc and av_free
-}
-
-#include "spdlog/spdlog.h"
-#include <memory>
-#include <string>
-#include <iostream>
 /**
  Safe structure for storing data pointer and operations on them (clear, resize, copy, swap)
  */

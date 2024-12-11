@@ -23,7 +23,7 @@ NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     m_buffer_frame = av_frame_alloc();
     m_buffer_frame->width = m_params.m_width;
     m_buffer_frame->height = m_params.m_height;
-    m_buffer_frame->format = AVPixelFormat::AV_PIX_FMT_RGB24;
+    m_buffer_frame->format = AVPixelFormat::AV_PIX_FMT_YUV420P;
     int ret = av_frame_get_buffer(m_buffer_frame, 0);
 
     if (ret)
@@ -33,7 +33,10 @@ NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     m_buffer = std::make_unique<uint8_t[]>(m_buffer_size);
 
     m_encoder = new NtVideoEncoder("libx264");
-    // fill_frame(*m_buffer_frame, m_buffer.get());
+    fill_frame(*m_buffer_frame, m_buffer.get());
+    m_encoder->Push(m_buffer_frame);
+    m_encoder->Push(m_buffer_frame);
+    m_encoder->Push(m_buffer_frame);
 }
 
 NtDummyVideoDevice::~NtDummyVideoDevice()

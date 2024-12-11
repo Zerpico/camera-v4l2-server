@@ -52,9 +52,9 @@ public:
     }
     virtual unsigned long getBufferSize() { return 0; }
 
-    virtual int getWidth() { return m_params.m_width; }
-    virtual int getHeight() { return m_params.m_height; }
-    // virtual int getVideoFormat() { return m_device->getFormat(); }
+    virtual int getWidth() { return m_encoder->getWidth(); }
+    virtual int getHeight() { return m_encoder->getHeight(); }
+    virtual int getVideoFormat() { return m_encoder->getVideoFormat(); }
 
     inline void fill_frame(AVFrame &frame, uint8_t *dst);
 

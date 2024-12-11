@@ -8,7 +8,7 @@ using namespace drogon;
 
 WebServer::WebServer()
 {
-    trantor::Logger::LogLevel logLevel = trantor::Logger::kDebug;
+    trantor::Logger::LogLevel logLevel = trantor::Logger::kInfo;
     app()
         .setLogLevel(logLevel)
         .setLogPath(".", "log", 1000000, 1024 * 8096, true)
@@ -19,14 +19,15 @@ WebServer::WebServer()
 
     // set console logger
     spdlog::sink_ptr console_sink = std::make_shared<spdlog::sinks::stderr_color_sink_mt>();
-    console_sink->set_level((spdlog::level::level_enum)logLevel);
     logger->sinks().push_back(console_sink);
 
+    logger->set_level((spdlog::level::level_enum)logLevel);
     // set log format for all sinks
     for (auto &sink : logger->sinks())
         sink->set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%^%3!l%$] %v - %s:%#");
 
     spdlog::set_default_logger(logger);
+    auto lev = logger->level();
 }
 
 WebServer::~WebServer()

@@ -25,9 +25,28 @@ protected:
 public:
     NtVideoEncoder(std::string codec_name, int width = 640, int height = 480, AVPixelFormat format = AV_PIX_FMT_YUV420P, double fps = 25.0);
     ~NtVideoEncoder();
+    void Push(AVFrame *frame);
+
+    int getWidth()
+    {
+        return _codecCtx->width;
+    }
+    int getHeight()
+    {
+        return _codecCtx->height;
+    }
+    int getVideoFormat()
+    {
+        return _codecCtx->pix_fmt;
+    }
+    int getFramerate()
+    {
+        return av_q2d(_codecCtx->framerate);
+    }
 
 private:
     std::shared_ptr<AVCodecContext> _codecCtx;
-    // std::unique_ptr<ThreadsafeQueue<queue_frame>> frame_queue;
+    std::shared_ptr<AVPacket> _outPacket;
+    std::unique_ptr<ThreadsafeQueue<AVFrame>> frame_queue;
     std::unique_ptr<std::thread> frame_push_thread;
 };
