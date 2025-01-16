@@ -78,6 +78,18 @@
       }
     },
     {
+      "name": "clang-w64-debug",
+      "displayName": "Clang 17.0.4 x86_64 (ucrt64)",
+      "description": "Using compilers: C = C:\\msys64\\ucrt64\\bin\\clang.exe, CXX = C:\\msys64\\ucrt64\\bin\\clang++.exe",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}",
+        "CMAKE_C_COMPILER": "C:/msys64/ucrt64/bin/clang.exe",
+        "CMAKE_CXX_COMPILER": "C:/msys64/ucrt64/bin/clang++.exe",
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
       "name": "macos-debug",
       "displayName": "macOS Debug",
       "generator": "Ninja",

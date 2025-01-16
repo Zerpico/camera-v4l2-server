@@ -58,7 +58,7 @@ public:
 
     virtual int getWidth() { return m_encoder->getWidth(); }
     virtual int getHeight() { return m_encoder->getHeight(); }
-    virtual int getVideoFormat() { return m_encoder->getVideoFormat(); }
+    virtual NtDeviceFormat getVideoFormat() { return (NtDeviceFormat)m_encoder->getVideoFormat(); }
 
     inline void fill_frame(AVFrame &frame, uint8_t *dst);
 

@@ -54,7 +54,8 @@ target_link_libraries(NtRtsp ${WINSOCK} spdlog NtDevice)
 # web library
 #####################
 aux_source_directory("web" WEB_SRC_FILES)
-add_library (NtWeb ${BUILDLIB_TYPE} ${WEB_SRC_FILES})
+aux_source_directory("web/controllers" WEB_CTL_FILES)
+add_library (NtWeb ${BUILDLIB_TYPE} ${WEB_SRC_FILES} ${WEB_CTL_FILES})
 target_include_directories(NtWeb PUBLIC ${PROJECT_SOURCE_DIR}/web)	
 target_link_libraries(NtWeb NtDevice drogon spdlog)
 

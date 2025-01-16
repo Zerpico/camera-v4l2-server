@@ -3,6 +3,8 @@
 #include "NtUsageEnvironment.h"
 #include "NtRtspServer.h"
 #include <Observer.h>
+#include <StreamReplicator.hh>
+#include <list>
 
 class NtRtspApp
 {
@@ -12,6 +14,9 @@ public:
     ~NtRtspApp();
     bool Start();
     bool Stop();
+
+    ServerMediaSession *AddUnicastSession(const std::string &url, StreamReplicator *videoReplicator, StreamReplicator *audioReplicator);
+    ServerMediaSession *addSession(const std::string &sessionName, const std::list<ServerMediaSubsession *> &subSession);
 
 private:
     void RunThread();
