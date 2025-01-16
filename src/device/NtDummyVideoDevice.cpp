@@ -20,11 +20,14 @@ NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     : m_params(params)
 {
     // allocate avFrame and fill props and data
-    m_buffer_frame = av_frame_alloc();
+    m_buffer_frame = std::shared_ptr<AVFrame>(av_frame_alloc(), [](AVFrame *ptr)
+                                              { av_frame_free(&ptr); });
+    // m_buffer_frame = av_frame_alloc();
     m_buffer_frame->width = m_params.m_width;
     m_buffer_frame->height = m_params.m_height;
     m_buffer_frame->format = AVPixelFormat::AV_PIX_FMT_YUV420P;
-    int ret = av_frame_get_buffer(m_buffer_frame, 0);
+    auto dd = *m_buffer_frame;
+    int ret = av_frame_get_buffer(m_buffer_frame.get(), 0);
 
     if (ret)
         throw std::runtime_error("Failed fill buffer frame");
@@ -32,17 +35,17 @@ NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     m_buffer_size = av_image_get_buffer_size((AVPixelFormat)m_buffer_frame->format, m_buffer_frame->width, m_buffer_frame->height, 4);
     m_buffer = std::make_unique<uint8_t[]>(m_buffer_size);
 
-    m_encoder = new NtVideoEncoder("libx264");
-    fill_frame(*m_buffer_frame, m_buffer.get());
-    m_encoder->Push(m_buffer_frame);
-    m_encoder->Push(m_buffer_frame);
-    m_encoder->Push(m_buffer_frame);
+    m_encoder = std::make_shared<NtVideoEncoder>("libx264", m_params.m_width, m_params.m_height, AVPixelFormat::AV_PIX_FMT_YUV420P, 25.0);
+    // fill_frame(*m_buffer_frame, m_buffer.get());
+    // m_encoder->Push(m_buffer_frame.get());
+    // m_encoder->Push(m_buffer_frame.get());
+    // m_encoder->Push(m_buffer_frame.get());
 }
 
 NtDummyVideoDevice::~NtDummyVideoDevice()
 {
-    if (m_buffer_frame != NULL)
-        av_frame_free(&m_buffer_frame);
+    // if (m_buffer_frame != NULL)
+    //     av_frame_free(&(m_buffer_frame.get()));
     m_buffer.reset();
 }
 

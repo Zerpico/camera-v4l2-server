@@ -2,7 +2,7 @@
 #include "NtRtspServer.h"
 #include "spdlog/spdlog.h"
 
-NtRtspApp::NtRtspApp(unsigned short rtspPort, int timeout)
+NtRtspApp::NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort, int timeout) : _dispatcher(dispatcher)
 {
     scheduler = BasicTaskScheduler::createNew();
     env = NtUsageEnvironment::createNew(*scheduler);
@@ -15,10 +15,16 @@ NtRtspApp::NtRtspApp(unsigned short rtspPort, int timeout)
         spdlog::error("Failed to create rtsp server ::%s", env->getResultMsg());
         return;
     }
+
+    _listener = std::make_shared<CListener>();
+    _listener->SetMessageFunc(std::bind(&NtRtspApp::OnMessage, this, std::placeholders::_1));
+    _dispatcher->Subscribe(_listener);
 }
 
 NtRtspApp::~NtRtspApp()
 {
+    _dispatcher->Unsubscribe(_listener->GetSubscriberId());
+
     if (f_state_ == 1)
         return;
 
@@ -30,6 +36,12 @@ NtRtspApp::~NtRtspApp()
     Medium::close(rtsp_server);
     env->reclaim();
     delete scheduler;
+}
+
+void NtRtspApp::OnMessage(void *userdata)
+{
+    int *value = static_cast<int *>(userdata);
+    spdlog::info("OnMessage called, value: {} , from SubscriberId {}", *value, _listener->GetSubscriberId());
 }
 
 bool NtRtspApp::Start()

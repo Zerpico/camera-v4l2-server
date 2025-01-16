@@ -39,7 +39,7 @@ public:
     {
         return _codecCtx->pix_fmt;
     }
-    int getFramerate()
+    double getFramerate()
     {
         return av_q2d(_codecCtx->framerate);
     }

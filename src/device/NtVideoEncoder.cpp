@@ -41,7 +41,6 @@ NtVideoEncoder::NtVideoEncoder(std::string codec_name, int width, int height, AV
     _codecCtx->time_base = av_inv_q(framerate); // Frames per second
     if (gop_size > 0)
         _codecCtx->gop_size = gop_size; // Intra frames per x P frames
-    // CodecCtx->bit_rate = config.BitRate;     // average bit_rate
 
     if (codec->id == AVCodecID::AV_CODEC_ID_H264 || codec->id == AVCodecID::AV_CODEC_ID_HEVC ||
         codec->id == AVCodecID::AV_CODEC_ID_MPEG4 || codec->id == AVCodecID::AV_CODEC_ID_MPEG2VIDEO)

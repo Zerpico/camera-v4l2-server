@@ -4,17 +4,26 @@
 #include "NtDummyVideoDevice.h"
 #include <spdlog/spdlog.h>
 #include "avcodec_utils.h"
+#include "Observer.h"
+#include "glob.h"
+
+std::unique_ptr<CDispatcher> g_Dispatcher;
 
 int main()
 {
-    auto web = new WebServer();
+    g_Dispatcher = std::make_unique<CDispatcher>();
 
+    auto web = new WebServer(g_Dispatcher.get());
     set_external_avlogger(spdlog::default_logger());
+    auto rtsp = new NtRtspApp(g_Dispatcher.get());
 
-    auto dummy_dev = NtDummyVideoDevice::createNew(DummyVideoDeviceParameters{});
+    // channel.AddChannel(std::shared_ptr<NtDeviceInterface>(NtDummyVideoDevice::createNew(DummyVideoDeviceParameters{})));
 
-    // auto rtsp = new NtRtspApp();
+    // for (int i = 1000; i < 1020; i++)
+    //     g_Dispatcher->SendMessageLP(&i);
 
-    // rtsp->Start();
-    // web->run();
+    // Sleep(100);
+
+    rtsp->Start();
+    web->run();
 }

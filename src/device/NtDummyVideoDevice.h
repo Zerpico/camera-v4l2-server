@@ -44,11 +44,15 @@ protected:
 
 public:
     virtual size_t read(char *buffer, size_t bufferSize) { return 0; }
-    virtual long getFd()
+    virtual __int64 getFd()
     {
-        std::time_t result = std::time(nullptr);
-        std::localtime(&result);
-        return result;
+        if (_fd < 0)
+        {
+            std::time_t result = std::time(nullptr);
+            std::localtime(&result);
+            _fd = (long)result;
+        }
+        return _fd;
     }
     virtual unsigned long getBufferSize() { return 0; }
 
@@ -60,7 +64,7 @@ public:
 
 private:
     DummyVideoDeviceParameters m_params;
-    AVFrame *m_buffer_frame;
+    std::shared_ptr<AVFrame> m_buffer_frame = NULL;
     size_t m_buffer_size = 0;
     std::unique_ptr<uint8_t[]> m_buffer;
 
@@ -76,5 +80,6 @@ private:
             {0, 0, 0},       // Black
         };
 
-    NtVideoEncoder *m_encoder = NULL;
+    std::shared_ptr<NtVideoEncoder> m_encoder = NULL;
+    long _fd = -1;
 };

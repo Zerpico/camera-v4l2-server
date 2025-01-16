@@ -3,10 +3,12 @@
 #include <drogon/drogon.h>
 #include <spdlog/spdlog.h>
 #include "spdlog/sinks/stdout_color_sinks.h"
+#include "glob.h"
+#include <NtDummyVideoDevice.h>
 
 using namespace drogon;
 
-WebServer::WebServer()
+WebServer::WebServer(CDispatcherBase *dispatcher) : _dispatcher(dispatcher)
 {
     trantor::Logger::LogLevel logLevel = trantor::Logger::kInfo;
     app()
@@ -28,15 +30,26 @@ WebServer::WebServer()
 
     spdlog::set_default_logger(logger);
     auto lev = logger->level();
+
+    _listener = std::make_shared<CListener>();
+    _listener->SetMessageFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
+    dispatcher->Subscribe(_listener);
 }
 
 WebServer::~WebServer()
 {
     app().quit();
+    _dispatcher->Unsubscribe(_listener->GetSubscriberId());
 }
 
 void WebServer::run()
 {
     spdlog::info("run webserver on :8080");
     app().run();
+}
+
+void WebServer::OnMessage(void *userdata)
+{
+    int *value = static_cast<int *>(userdata);
+    spdlog::info("OnMessage called, value: {} , from SubscriberId {}", *value, _listener->GetSubscriberId());
 }
