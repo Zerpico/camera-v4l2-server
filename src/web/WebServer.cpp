@@ -13,6 +13,8 @@ WebServer::WebServer(CDispatcherBase *dispatcher) : _dispatcher(dispatcher)
     trantor::Logger::LogLevel logLevel = trantor::Logger::kInfo;
     app()
         .setLogLevel(logLevel)
+        .setDocumentRoot("./www")
+        .enableSession(std::chrono::duration<double>(1200))
         .setLogPath(".", "log", 1000000, 1024 * 8096, true)
         .setupFileLogger()
         .addListener("0.0.0.0", 8080);

@@ -17,12 +17,13 @@ int main()
     set_external_avlogger(spdlog::default_logger());
     auto rtsp = new NtRtspApp(g_Dispatcher.get());
 
-    // channel.AddChannel(std::shared_ptr<NtDeviceInterface>(NtDummyVideoDevice::createNew(DummyVideoDeviceParameters{})));
+    // auto channel = std::shared_ptr<NtDeviceInterface>(NtDummyVideoDevice::createNew(DummyVideoDeviceParameters{}));
 
-    // for (int i = 1000; i < 1020; i++)
+    // for (int i = 1000; i < 2020; i++)
+    // {
+    //     Sleep(100);
     //     g_Dispatcher->SendMessageLP(&i);
-
-    // Sleep(100);
+    // }
 
     rtsp->Start();
     web->run();
