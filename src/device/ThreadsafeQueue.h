@@ -10,20 +10,8 @@ template <typename T>
 class ThreadsafeQueue
 {
 public:
-    ThreadsafeQueue(size_t size_limit)
-        : size_limit(size_limit), m_termination(false)
-    {
-    }
+    ThreadsafeQueue(size_t size_limit = 10);
     ~ThreadsafeQueue() = default;
-
-    /**
-     * 1. When termination is not called, one element is dequeued every time the
-     *    queue is called until the queue is empty. This method blocks the thread.
-     * 2. After termination is called, this method will never block. If it is
-     *    already in a blocked state, contact the blocked state.
-     * 3. When true is returned, the value is valid. When false is returned, value
-     *    is invalid. Returns false when termination is called and the queue is empty.
-     **/
 
     // return nullptr if the queue is empty
     std::shared_ptr<T> wait_and_pop();

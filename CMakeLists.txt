@@ -8,6 +8,7 @@ project (camera_v4l_rtsp  LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+option (BUILD_FRONT "Build Web UI" OFF)
 
 if(NOT DEFINED CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Debug")
@@ -130,6 +131,13 @@ endif()
 
 # basic project
 add_subdirectory(src)
+
+##########################
+# frontend
+##########################
+if (BUILD_FRONT)
+  add_custom_target("frontend" COMMAND npm install -c ${CMAKE_CURRENT_SOURCE_DIR}/frontend && npm run build --prefix ${CMAKE_CURRENT_SOURCE_DIR}/frontend)
+endif()
 
 message("")
 message("  CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE}")

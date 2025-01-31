@@ -1,6 +1,9 @@
 #include "NtDummyVideoDevice.h"
 #include <memory>
 #include <stdexcept>
+#include <chrono>
+
+using namespace std::chrono;
 
 NtDummyVideoDevice *NtDummyVideoDevice::createNew(const DummyVideoDeviceParameters &params)
 {
@@ -22,7 +25,6 @@ NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     // allocate avFrame and fill props and data
     m_buffer_frame = std::shared_ptr<AVFrame>(av_frame_alloc(), [](AVFrame *ptr)
                                               { av_frame_free(&ptr); });
-    // m_buffer_frame = av_frame_alloc();
     m_buffer_frame->width = m_params.m_width;
     m_buffer_frame->height = m_params.m_height;
     m_buffer_frame->format = AVPixelFormat::AV_PIX_FMT_YUV420P;
@@ -36,14 +38,11 @@ NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     m_buffer = std::make_unique<uint8_t[]>(m_buffer_size);
 
     m_encoder = std::make_shared<NtVideoEncoder>("libx264", m_params.m_width, m_params.m_height, AVPixelFormat::AV_PIX_FMT_YUV420P, 25.0);
-    // fill_frame(*m_buffer_frame, m_buffer.get());
-    // m_encoder->Push(m_buffer_frame.get());
-    // m_encoder->Push(m_buffer_frame.get());
-    // m_encoder->Push(m_buffer_frame.get());
 }
 
 NtDummyVideoDevice::~NtDummyVideoDevice()
 {
+    stop();
     // if (m_buffer_frame != NULL)
     //     av_frame_free(&(m_buffer_frame.get()));
     m_buffer.reset();
@@ -65,4 +64,33 @@ inline void NtDummyVideoDevice::fill_frame(AVFrame &frame, uint8_t *buffer)
     }
     // fill frame
     int ret = av_image_fill_arrays(frame.data, frame.linesize, buffer, (AVPixelFormat)frame.format, frame.width, frame.height, 1);
+}
+
+void NtDummyVideoDevice::start()
+{
+    thread_capture = std::thread(&NtDummyVideoDevice::runThread, this);
+}
+void NtDummyVideoDevice::stop()
+{
+    mStop = 0;
+    if (thread_capture.joinable())
+        thread_capture.join();
+}
+
+void NtDummyVideoDevice::runThread()
+{
+    mStop = 1;
+    std::chrono::milliseconds maxElapsedMs = milliseconds((int)(1000 / m_params.m_fps));
+    while (mStop)
+    {
+        auto start = std::chrono::high_resolution_clock::now();
+        fill_frame(*m_buffer_frame.get(), m_buffer.get());
+        m_encoder->Push(m_buffer_frame.get());
+        auto end = std::chrono::high_resolution_clock::now(); // td::chrono::steady_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
+
+        auto sleepMs = maxElapsedMs - duration;
+        if (duration < maxElapsedMs)
+            std::this_thread::sleep_for(sleepMs);
+    }
 }

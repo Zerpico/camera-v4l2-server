@@ -10,8 +10,19 @@ NtMediaChannel::~NtMediaChannel()
 
 void NtMediaChannel::AddChannel(std::shared_ptr<NtDeviceInterface> device)
 {
-    auto id = device->getFd();
-    if (id < 0)
+    auto id = _channels.rbegin()->first;
+    if (device->getFd() < 0)
         throw std::exception("invalid id of device");
-    _channels[id] = device;
+    _channels[id + 1] = device;
+}
+
+bool NtMediaChannel::RemoveChannel(int id)
+{
+    auto channel = _channels.find(id);
+    if (channel == _channels.end())
+        return false;
+
+    channel->second->~NtDeviceInterface();
+    _channels.erase(id);
+    return true;
 }

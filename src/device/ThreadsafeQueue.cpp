@@ -1,6 +1,12 @@
 #include "ThreadsafeQueue.h"
 
-template <class T>
+template <typename T>
+ThreadsafeQueue<T>::ThreadsafeQueue(size_t size_limit)
+    : size_limit(size_limit), m_termination(false)
+{
+}
+
+template <typename T>
 std::shared_ptr<T> ThreadsafeQueue<T>::wait_and_pop()
 {
     std::unique_lock<std::mutex> lk(mut);
@@ -20,7 +26,7 @@ std::shared_ptr<T> ThreadsafeQueue<T>::wait_and_pop()
     return nullptr;
 }
 
-template <class T>
+template <typename T>
 bool ThreadsafeQueue<T>::wait_and_pop(T &&value)
 {
     std::shared_ptr<T> res = wait_and_pop();
@@ -30,7 +36,7 @@ bool ThreadsafeQueue<T>::wait_and_pop(T &&value)
     return true;
 }
 
-template <class T>
+template <typename T>
 std::shared_ptr<T> ThreadsafeQueue<T>::try_pop()
 {
     std::lock_guard<std::mutex> lk(mut);
@@ -47,7 +53,7 @@ std::shared_ptr<T> ThreadsafeQueue<T>::try_pop()
     return nullptr;
 }
 
-template <class T>
+template <typename T>
 bool ThreadsafeQueue<T>::try_pop(T &&value)
 {
     std::shared_ptr<T> res = try_pop();
@@ -57,7 +63,7 @@ bool ThreadsafeQueue<T>::try_pop(T &&value)
     return true;
 }
 
-template <class T>
+template <typename T>
 void ThreadsafeQueue<T>::move_push(T &&new_value)
 {
     if (m_termination.load(std::memory_order_acquire))
@@ -73,33 +79,33 @@ void ThreadsafeQueue<T>::move_push(T &&new_value)
     data_cond.notify_one();
 }
 
-template <class T>
+template <typename T>
 void ThreadsafeQueue<T>::push(T new_value)
 {
     move_push(new_value);
 }
 
-template <class T>
+template <typename T>
 bool ThreadsafeQueue<T>::empty()
 {
     std::unique_lock<std::mutex> lk(mut);
     return data_queue.empty();
 }
 
-template <class T>
+template <typename T>
 size_t ThreadsafeQueue<T>::size()
 {
     std::unique_lock<std::mutex> lk(mut);
     return data_queue.size();
 }
 
-template <class T>
+template <typename T>
 size_t ThreadsafeQueue<T>::dropped_count() const
 {
     return m_dropped_count.load(std::memory_order_relaxed);
 }
 
-template <class T>
+template <typename T>
 void ThreadsafeQueue<T>::termination()
 {
     std::unique_lock<std::mutex> lk(mut);
@@ -107,7 +113,7 @@ void ThreadsafeQueue<T>::termination()
     data_cond.notify_all();
 }
 
-template <class T>
+template <typename T>
 bool ThreadsafeQueue<T>::is_termination() const
 {
     return m_termination.load(std::memory_order_acquire);

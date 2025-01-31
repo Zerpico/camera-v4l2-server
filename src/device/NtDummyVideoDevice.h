@@ -62,11 +62,17 @@ public:
 
     inline void fill_frame(AVFrame &frame, uint8_t *dst);
 
+    virtual void start();
+    virtual void stop();
+
 private:
     DummyVideoDeviceParameters m_params;
     std::shared_ptr<AVFrame> m_buffer_frame = NULL;
     size_t m_buffer_size = 0;
     std::unique_ptr<uint8_t[]> m_buffer;
+    std::thread thread_capture{};
+    void runThread();
+    int mStop = 1;
 
     const uint8_t bar_colours[8][3] =
         {

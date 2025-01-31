@@ -21,12 +21,7 @@ public:
     virtual int getSampleRate() { return -1; }
     virtual int getChannels() { return -1; }
     virtual NtDeviceFormat getAudioFormat() { return NtDeviceFormat::FMT_NONE; }
-};
 
-class NtVideoDeviceInterface : public NtDeviceInterface
-{
-};
-
-class NtAudioDeviceInterface : public NtDeviceInterface
-{
+    virtual void start() = 0;
+    virtual void stop() = 0;
 };
