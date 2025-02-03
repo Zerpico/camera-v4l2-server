@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 #include <ctime>
+#include <thread>
 
 extern "C"
 {
@@ -44,7 +45,7 @@ protected:
 
 public:
     virtual size_t read(char *buffer, size_t bufferSize) { return 0; }
-    virtual __int64 getFd()
+    virtual int64_t getFd()
     {
         if (_fd < 0)
         {

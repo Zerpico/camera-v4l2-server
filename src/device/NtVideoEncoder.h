@@ -13,6 +13,7 @@ extern "C"
 #include <libavcodec/avcodec.h>
 }
 
+#include <thread>
 #include "ThreadsafeQueue.h"
 
 class NtVideoEncoder

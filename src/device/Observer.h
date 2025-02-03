@@ -7,7 +7,7 @@
 // Subscriber
 //////////////////////////
 
-typedef unsigned __int64 SubscriberId;
+typedef uint64_t SubscriberId;
 class CSubscriber
 {
 public:

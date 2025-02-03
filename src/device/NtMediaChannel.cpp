@@ -12,7 +12,7 @@ void NtMediaChannel::AddChannel(std::shared_ptr<NtDeviceInterface> device)
 {
     auto id = _channels.rbegin()->first;
     if (device->getFd() < 0)
-        throw std::exception("invalid id of device");
+        throw std::runtime_error("invalid id of device");
     _channels[id + 1] = device;
 }
 

@@ -2,7 +2,7 @@
 
 extern "C"
 {
-#include <libavutil\mem.h> //for av_malloc and av_free
+#include <libavutil/mem.h> //for av_malloc and av_free
 }
 
 #include "spdlog/spdlog.h"

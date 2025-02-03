@@ -1,3 +1,3 @@
 #include "NtMediaChannel.h"
 
-NtMediaChannel mediaChannels;
+//NtMediaChannel mediaChannels;
