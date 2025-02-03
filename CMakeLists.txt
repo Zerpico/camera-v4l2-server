@@ -1,4 +1,4 @@
-﻿cmake_minimum_required(VERSION 3.24 FATAL_ERROR)
+﻿cmake_minimum_required(VERSION 3.10...3.21)
 
 #####################################################################################################
 # PROJECT INFORMATION
@@ -53,30 +53,38 @@ include("FetchZlib")
 #################################
 ## FMT
 #################################
+if(WIN32)
+  set(FMTW_FLAG ON)
+endif()
 CPMAddPackage(
   NAME fmt
   GITHUB_REPOSITORY fmtlib/fmt
   GIT_TAG 10.2.1
   OPTIONS
-      "FMT_USE_WINDOWS_H ON"  
+      "FMT_USE_WINDOWS_H ${FMTW_FLAG}"  
 )
 
 #################################
 ## SPDLOG
 #################################
+if(WIN32)
+  set(SPDLOG_SHARED_FLAG ON)
+else()  
+  set(SPDLOG_SHARED_FLAG OFF)
+endif()
 CPMAddPackage(
   NAME spdlog
   GITHUB_REPOSITORY gabime/spdlog
   GIT_TAG v1.14.1
   OPTIONS  
-    "SPDLOG_BUILD_SHARED ON"
+    "SPDLOG_BUILD_SHARED ${SPDLOG_SHARED_FLAG}"
     "SPDLOG_INSTALL ON"
     "SPDLOG_COMPILED_LIB ON"
     "SPDLOG_BUILD_EXAMPLES OFF"
     "SPDLOG_BUILD_TESTS OFF"
-    "SPDLOG_FMT_EXTERNAL ON"
+    "SPDLOG_FMT_EXTERNAL ON"    
 )
-
+include_directories("${spdlog_SOURCE_DIR}/include")
 #################################
 ## Drogon
 #################################
@@ -100,20 +108,18 @@ set(BUILD_MYSQL OFF CACHE BOOL "Build with mysql" FORCE)
 set(BUILD_SQLITE OFF CACHE BOOL "Build witg sqlite" FORCE)
 set(BUILD_REDIS OFF CACHE BOOL "Build with redis" FORCE)
 set(BUILD_CTL OFF CACHE BOOL "Build drogon ctl" FORCE)
+set(spdlog_DIR ${spdlog_BUILD_DIR} CACHE STRING "Build drogon with spdlog" FORCE)
 
-if (NOT drogon_ADDED)
- message(SEND_ERROR "=== DROGON ERROR")
-endif()
-message("=== drogon_SOURCE_DIR : ${drogon_SOURCE_DIR}")
 #stupid hack for force using jsoncpp as static
-IF(WIN32)
   execute_process(COMMAND ${PATCH} -d ${drogon_SOURCE_DIR} -f -p 1 -i ${CMAKE_SOURCE_DIR}/patches/003_drogon_jsoncpp_static_win32
   TIMEOUT 15
   COMMAND_ECHO STDOUT
   RESULT_VARIABLE ret)
-endif()
-add_subdirectory(${drogon_SOURCE_DIR} ${drogon_BUILD_DIR})
 
+add_subdirectory(${drogon_SOURCE_DIR} ${drogon_BUILD_DIR})
+target_compile_definitions(drogon PUBLIC DROGON_SPDLOG_SUPPORT)
+target_compile_definitions(trantor PUBLIC TRANTOR_SPDLOG_SUPPORT)
+add_dependencies(drogon spdlog)
 
 ## basic project
 add_subdirectory(src)

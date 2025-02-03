@@ -2,6 +2,7 @@
 #include <list>
 #include "NtDeviceFormat.h"
 #include <cstdint>
+#include <cstddef>
 // ---------------------------------
 // Device Interface
 // ---------------------------------

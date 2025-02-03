@@ -16,7 +16,7 @@ int main()
 
     auto web = std::make_unique<WebServer>(g_Dispatcher.get());
     set_external_avlogger(spdlog::default_logger());
-    auto rtsp = std::make_unique<NtRtspApp>(g_Dispatcher.get());
+    auto rtsp = std::make_unique<NtRtspApp>(g_Dispatcher.get(), 8554);
 
     auto channel = std::shared_ptr<NtDeviceInterface>(NtDummyVideoDevice::createNew(DummyVideoDeviceParameters{}));
     channel->start();
@@ -25,11 +25,11 @@ int main()
     int val = 5;
     auto f = &val;
     // auto queue = std::make_unique<ThreadsafeQueue<int>>(5);
-    ThreadsafeQueue<int> queue(5);
+    // ThreadsafeQueue<int> queue(5);
     // queue->push(val);
     // queue->push(val + 8);
     // std::shared_ptr<int> frame = queue->wait_and_pop();
     // std::shared_ptr<int> frame2 = queue->wait_and_pop();
-    rtsp->Start();
+    // rtsp->Start();
     web->run();
 }

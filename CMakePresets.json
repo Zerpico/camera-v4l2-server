@@ -58,8 +58,8 @@
       }
     },
     {
-      "name": "linux-debug",
-      "displayName": "Linux Debug",
+      "name": "linux-x64-debug",
+      "displayName": "Linux x64 Debug",
       "generator": "Ninja",
       "binaryDir": "${sourceDir}/out/build/${presetName}",
       "installDir": "${sourceDir}/out/install/${presetName}",

@@ -40,7 +40,7 @@ function(check_ffmpeg)
         libavdevice
         libavformat
         libavcodec
-        libswresample
+#        libswresample
         libswscale
         libavutil
 #        libpostproc
@@ -81,7 +81,7 @@ function(custom_find_ffmpeg)
 
     # check if variables is not empty
     if (NOT ${FFMPEG_INCLUDE_DIR} STREQUAL "" AND NOT ${FFMPEG_LIBRARY_DIRS} STREQUAL "")
-        SET(FFMPEG_FOUND ON CACHE BOOL "ffmpeg is found")
+        SET(FFMPEG_FOUND ON)
     ENDIF()
 
     #IF(NOT "${FFMPEG_FOUND}")        
