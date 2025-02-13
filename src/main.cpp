@@ -20,16 +20,6 @@ int main()
 
     auto channel = std::shared_ptr<NtDeviceInterface>(NtDummyVideoDevice::createNew(DummyVideoDeviceParameters{}));
     channel->start();
-    // rtsp->addSession
 
-    int val = 5;
-    auto f = &val;
-    // auto queue = std::make_unique<ThreadsafeQueue<int>>(5);
-    // ThreadsafeQueue<int> queue(5);
-    // queue->push(val);
-    // queue->push(val + 8);
-    // std::shared_ptr<int> frame = queue->wait_and_pop();
-    // std::shared_ptr<int> frame2 = queue->wait_and_pop();
-    // rtsp->Start();
     web->run();
 }
