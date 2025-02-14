@@ -1,5 +1,6 @@
 #pragma once
 #include <Observer.h>
+#include <NtMediaChannels.h>
 
 class WebServer
 {

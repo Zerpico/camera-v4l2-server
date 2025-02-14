@@ -3,7 +3,6 @@
 #include <drogon/drogon.h>
 #include <spdlog/spdlog.h>
 #include "spdlog/sinks/stdout_color_sinks.h"
-#include "glob.h"
 #include <NtDummyVideoDevice.h>
 
 using namespace drogon;

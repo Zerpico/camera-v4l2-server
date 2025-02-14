@@ -14,8 +14,9 @@ endif()
 ########################
 # device library
 ########################
-aux_source_directory("device" CAMERA_SRC_FILES)
-add_library (NtDevice ${BUILDLIB_TYPE} ${CAMERA_SRC_FILES})
+aux_source_directory("device" DEVICE_SRC_FILES)
+aux_source_directory("device/mioc" DEVICE_IOC_FILES)
+add_library (NtDevice ${BUILDLIB_TYPE} ${DEVICE_SRC_FILES} ${DEVICE_IOC_FILES})
 target_include_directories(NtDevice PUBLIC ${PROJECT_SOURCE_DIR}/device)	
 target_link_libraries(NtDevice spdlog PkgConfig::FFMPEG)
 
