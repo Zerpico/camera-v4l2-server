@@ -1,11 +1,15 @@
 #pragma once
 #include "NtMediaChannels.h"
 
-class Pipeline
+class IPipeline
+{
+};
+
+class Pipeline : public IPipeline
 {
 
 public:
-    Pipeline(std::shared_ptr<NtMediaChannels> channels);
+    Pipeline(const std::shared_ptr<INtMediaChannels> &channels);
     ~Pipeline();
     Pipeline(const Pipeline &) = delete;
 

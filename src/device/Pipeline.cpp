@@ -2,7 +2,7 @@
 #include <functional>
 #include <spdlog/spdlog.h>
 
-Pipeline::Pipeline(std::shared_ptr<NtMediaChannels> channels)
+Pipeline::Pipeline(const std::shared_ptr<INtMediaChannels> &channels)
 {
     // channels->subscribe(std::bind(&Pipeline::onChangeChannel, this, std::placeholders::_1));
     //  callback = std::bind(&foo, "test", std::placeholders::_1, 3.f);
@@ -42,7 +42,7 @@ void Pipeline::addChannel(const NtChannel &channel)
     std::unique_ptr<NtDeviceInterface> source;
 
     // Запускаем канал
-    source->start();
+    // source->start();
 
     // Сохраняем канал
     channelSources[channel.id] = std::move(source);

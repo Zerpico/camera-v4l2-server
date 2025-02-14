@@ -30,7 +30,7 @@ public:
 };
 // Dispatcher
 /////////////////////////////////
-class CDispatcher : virtual public CDispatcherBase
+class CDispatcher : public CDispatcherBase
 {
 private:
     class CSubscriberItem

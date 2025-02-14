@@ -7,7 +7,7 @@
 
 using namespace drogon;
 
-WebServer::WebServer(CDispatcherBase *dispatcher) : _dispatcher(dispatcher)
+WebServer::WebServer(const std::shared_ptr<CDispatcherBase> &dispatcher) : _dispatcher(dispatcher)
 {
     trantor::Logger::LogLevel logLevel = trantor::Logger::kInfo;
     app()
@@ -34,7 +34,7 @@ WebServer::WebServer(CDispatcherBase *dispatcher) : _dispatcher(dispatcher)
 
     _listener = std::make_shared<CListener>();
     _listener->SetMessageFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
-    dispatcher->Subscribe(_listener);
+    _dispatcher->Subscribe(_listener);
 }
 
 WebServer::~WebServer()

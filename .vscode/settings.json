@@ -99,7 +99,9 @@
         "xtr1common": "cpp",
         "xtree": "cpp",
         "xutility": "cpp",
-        "resumable": "cpp"
+        "resumable": "cpp",
+        "cfenv": "cpp",
+        "expected": "cpp"
     },
     "search.useIgnoreFiles": false
 }

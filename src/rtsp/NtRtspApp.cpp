@@ -3,8 +3,10 @@
 #include "spdlog/spdlog.h"
 #include "UnicastServerMediaSubsession.h"
 
-NtRtspApp::NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort, int timeout) : _dispatcher(dispatcher)
+// NtRtspApp::NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort, int timeout) : _dispatcher(dispatcher)
+NtRtspApp::NtRtspApp(const std::shared_ptr<CDispatcherBase> &dispatcher) : _dispatcher(dispatcher)
 {
+    unsigned short rtspPort = 554;
     scheduler = BasicTaskScheduler::createNew();
     env = NtUsageEnvironment::createNew(*scheduler);
     UserAuthenticationDatabase *authDB = nullptr;

@@ -59,7 +59,7 @@ endif()
 CPMAddPackage(
   NAME fmt
   GITHUB_REPOSITORY fmtlib/fmt
-  GIT_TAG 10.2.1
+  GIT_TAG 11.1.3
   OPTIONS
       "FMT_USE_WINDOWS_H ${FMTW_FLAG}"  
 )
@@ -75,7 +75,7 @@ endif()
 CPMAddPackage(
   NAME spdlog
   GITHUB_REPOSITORY gabime/spdlog
-  GIT_TAG v1.14.1
+  GIT_TAG v1.15.1
   OPTIONS  
     "SPDLOG_BUILD_SHARED ${SPDLOG_SHARED_FLAG}"
     "SPDLOG_INSTALL ON"

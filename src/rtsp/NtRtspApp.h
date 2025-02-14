@@ -6,11 +6,19 @@
 #include <StreamReplicator.hh>
 #include <list>
 
-class NtRtspApp
+class INtRtspApp
+{
+public:
+    virtual bool Start() = 0;
+    virtual bool Stop() = 0;
+};
+
+class NtRtspApp : public INtRtspApp
 {
 
 public:
-    NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort = 554, int timeout = 10);
+    // NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort = 554, int timeout = 10);
+    NtRtspApp(const std::shared_ptr<CDispatcherBase> &dispatcher);
     ~NtRtspApp();
     bool Start();
     bool Stop();
@@ -29,7 +37,8 @@ private:
     NtUsageEnvironment *env;
     NtRTSPServer *rtsp_server;
 
-    CDispatcherBase *_dispatcher;
+    // CDispatcherBase *_dispatcher;
+    std::shared_ptr<CDispatcherBase> _dispatcher;
     std::shared_ptr<CListener> _listener;
     void OnMessage(void *userdata);
 };

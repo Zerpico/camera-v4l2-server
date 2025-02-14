@@ -8,25 +8,26 @@
 #include "ThreadsafeQueue.h"
 #include "NtMediaChannels.h"
 #include "mioc/mioc.h"
-std::unique_ptr<CDispatcher> g_Dispatcher;
+#include "Pipeline.h"
 
 int main()
 {
+    // init container and services
     auto container = getContainer();
     container->AddSingleton<INtMediaChannels, NtMediaChannels>();
     container->AddSingleton<CDispatcherBase, CDispatcher>();
-
-    auto channels = container->Resolve<INtMediaChannels>();
-    channels->addChannel("hello");
-    channels->addChannel("hello-world");
-    g_Dispatcher = std::make_unique<CDispatcher>();
-
-    auto web = std::make_unique<WebServer>(g_Dispatcher.get());
+    container->AddSingleton<IPipeline, Pipeline, INtMediaChannels>();
+    container->AddSingleton<IWebServer, WebServer, CDispatcherBase>();
+    container->AddSingleton<INtRtspApp, NtRtspApp, CDispatcherBase>();
     set_external_avlogger(spdlog::default_logger());
-    auto rtsp = std::make_unique<NtRtspApp>(g_Dispatcher.get(), 8554);
 
-    // auto channel = std::shared_ptr<NtDeviceInterface>(NtDummyVideoDevice::createNew(DummyVideoDeviceParameters{}));
-    // channel->start();
+    // just for test
+    {
+        auto channels = container->Resolve<INtMediaChannels>();
+        channels->addChannel("hello");
+        channels->addChannel("hello-world");
+    }
 
-    web->run();
+    container->Resolve<INtRtspApp>()->Start();
+    container->Resolve<IWebServer>()->run();
 }
