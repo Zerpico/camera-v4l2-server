@@ -13,6 +13,7 @@ WebServer::WebServer(const std::shared_ptr<CDispatcherBase> &dispatcher) : _disp
     app()
         .setLogLevel(logLevel)
         .setDocumentRoot("./www")
+        .setClientMaxBodySize(200 * 1024 * 1024) // max 200 mb
         .enableSession(std::chrono::duration<double>(1200))
         .setLogPath(".", "log", 1000000, 1024 * 8096, true)
         .setupFileLogger()
