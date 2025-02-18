@@ -4,12 +4,9 @@
 
 using namespace drogon;
 
-HttpResponsePtr makeFailedResponse(std::string errorText = "");
-HttpResponsePtr makeNotFoundResponse(std::string errorText = "");
-
 namespace api
 {
-  class Channel : public drogon::HttpController<Channel>
+  class Channel : public HttpController<Channel>
   {
   private:
   public:

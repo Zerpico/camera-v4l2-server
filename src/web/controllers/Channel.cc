@@ -1,7 +1,7 @@
 #include "Channel.h"
 #include <NtMediaChannels.h>
 #include "mioc/mioc.h"
-#include "utility.h"
+#include "utilities.hpp"
 
 using namespace api;
 
@@ -13,7 +13,7 @@ void Channel::getChannels(const HttpRequestPtr &req,
 
     if (channels.empty())
     {
-        callback(makeNotFoundResponse());
+        callback(Utility::makeNotFoundResponse());
     }
     else
     {
@@ -55,7 +55,7 @@ void Channel::getChannelInfo(const HttpRequestPtr &req,
 
     if (result == end(channels))
     {
-        callback(makeNotFoundResponse("channel with id '" + channelId + "' not found"));
+        callback(Utility::makeNotFoundResponse("channel with id '" + channelId + "' not found"));
     }
     else
     {
@@ -76,7 +76,7 @@ void Channel::updateChannelInfo(const HttpRequestPtr &req,
     auto jsonPtr = req->getJsonObject();
     if (jsonPtr == nullptr)
     {
-        callback(makeFailedResponse(req->getJsonError()));
+        callback(Utility::makeFailedResponse(req->getJsonError()));
         return;
     }
 
@@ -87,7 +87,7 @@ void Channel::updateChannelInfo(const HttpRequestPtr &req,
 
     if (result == end(channels))
     {
-        callback(makeNotFoundResponse("channel with id '" + channelId + "' not found"));
+        callback(Utility::makeNotFoundResponse("channel with id '" + channelId + "' not found"));
         return;
     }
 
@@ -100,25 +100,6 @@ void Channel::updateChannelInfo(const HttpRequestPtr &req,
     upChannel.enable = channel_enable;
 
     auto resp = mediaChannels->updateChannel(upChannel) ? HttpResponse::newHttpResponse()
-                                                        : makeFailedResponse("error when trying to update channel");
+                                                        : Utility::makeFailedResponse("error when trying to update channel");
     callback(resp);
-}
-
-HttpResponsePtr makeFailedResponse(std::string errorText)
-{
-    Json::Value json;
-    json["ok"] = false;
-    json["error_text"] = errorText;
-    auto resp = HttpResponse::newHttpJsonResponse(json);
-    resp->setStatusCode(k500InternalServerError);
-    return resp;
-}
-HttpResponsePtr makeNotFoundResponse(std::string errorText)
-{
-    Json::Value json;
-    json["ok"] = false;
-    json["error_text"] = errorText;
-    auto resp = HttpResponse::newHttpJsonResponse(json);
-    resp->setStatusCode(k404NotFound);
-    return resp;
 }
