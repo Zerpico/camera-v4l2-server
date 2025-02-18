@@ -24,12 +24,11 @@ NtMediaChannels::~NtMediaChannels()
 {
 }
 
-NtChannel NtMediaChannels::addChannel(const std::string &source)
+NtChannel NtMediaChannels::addChannel()
 {
     std::lock_guard<std::mutex> lock(mutex);
     NtChannel newChannel;
     newChannel.id = generateUniqueId();
-    newChannel.source = source;
     channels.push_back(newChannel);
     notify(ChannelEvent::Added, newChannel);
     return newChannel;

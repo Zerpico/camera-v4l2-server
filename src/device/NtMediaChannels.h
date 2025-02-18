@@ -22,12 +22,13 @@ struct NtChannel
 {
     std::string id;     // Уникальный ID канала
     std::string source; // Путь к файлу
+    bool enable = false;
 };
 
 class INtMediaChannels
 {
 public:
-    virtual NtChannel addChannel(const std::string &source) = 0;
+    virtual NtChannel addChannel() = 0;
     virtual bool removeChannel(const std::string &id) = 0;
     virtual bool updateChannel(const NtChannel &newChannel) = 0;
     virtual const std::vector<NtChannel> getChannels() = 0;
@@ -41,7 +42,7 @@ public:
     NtMediaChannels();
     ~NtMediaChannels();
     // NtMediaChannels(const NtMediaChannels &input) = default;
-    NtChannel addChannel(const std::string &source);
+    NtChannel addChannel();
     bool removeChannel(const std::string &id);
     bool updateChannel(const NtChannel &newChannel);
     const std::vector<NtChannel> getChannels();

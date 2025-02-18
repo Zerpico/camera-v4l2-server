@@ -22,11 +22,11 @@ int main()
     set_external_avlogger(spdlog::default_logger());
 
     // just for test
-    {
-        auto channels = container->Resolve<INtMediaChannels>();
-        channels->addChannel("hello");
-        channels->addChannel("hello-world");
-    }
+    // {
+    //     auto channels = container->Resolve<INtMediaChannels>();
+    //     channels->addChannel("hello");
+    //     channels->addChannel("hello-world");
+    // }
 
     container->Resolve<INtRtspApp>()->Start();
     container->Resolve<IWebServer>()->run();
