@@ -12,18 +12,11 @@ else()
 endif()
 
 ########################
-# common library
-########################
-aux_source_directory("common" COMMON_SRC_FILES)
-add_library (NtCommon ${BUILDLIB_TYPE} ${COMMON_SRC_FILES})
-target_include_directories(NtCommon PUBLIC ${PROJECT_SOURCE_DIR}/common)	
-target_link_libraries(NtCommon spdlog)
-
-########################
 # device library
 ########################
-aux_source_directory("device" CAMERA_SRC_FILES)
-add_library (NtDevice ${BUILDLIB_TYPE} ${CAMERA_SRC_FILES})
+aux_source_directory("device" DEVICE_SRC_FILES)
+aux_source_directory("device/mioc" DEVICE_IOC_FILES)
+add_library (NtDevice ${BUILDLIB_TYPE} ${DEVICE_SRC_FILES} ${DEVICE_IOC_FILES})
 target_include_directories(NtDevice PUBLIC ${PROJECT_SOURCE_DIR}/device)	
 target_link_libraries(NtDevice spdlog PkgConfig::FFMPEG)
 
@@ -62,7 +55,8 @@ target_link_libraries(NtRtsp ${WINSOCK} spdlog NtDevice)
 # web library
 #####################
 aux_source_directory("web" WEB_SRC_FILES)
-add_library (NtWeb ${BUILDLIB_TYPE} ${WEB_SRC_FILES})
+aux_source_directory("web/controllers" WEB_CTL_FILES)
+add_library (NtWeb ${BUILDLIB_TYPE} ${WEB_SRC_FILES} ${WEB_CTL_FILES})
 target_include_directories(NtWeb PUBLIC ${PROJECT_SOURCE_DIR}/web)	
 target_link_libraries(NtWeb NtDevice drogon spdlog)
 
@@ -73,8 +67,7 @@ target_link_libraries(NtWeb NtDevice drogon spdlog)
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries (${PROJECT_NAME} NtDevice NtRtsp NtWeb)
 
-#set(FFMPEG_DIR  "${CMAKE_BINARY_DIR}/_deps/ffmpeg-install"  CACHE INTERNAL "")
-# copy ffmpeg DLLs if WIN
+## copy ffmpeg DLLs if WIN
 IF (WIN32)
     FILE(GLOB FFMPEG_LIBRARY_DIRS ${FFMPEG_DIR}/bin/*.dll)
 
@@ -84,3 +77,9 @@ IF (WIN32)
                     COMMAND ${CMAKE_COMMAND} -E copy_if_different "${DLLFile}"  $<TARGET_FILE_DIR:${PROJECT_NAME}>)
     endforeach()
 ENDIF()
+
+## copy frontend
+if (BUILD_FRONT)
+  add_dependencies(${PROJECT_NAME} "frontend")
+  add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/../frontend/dist/ $<TARGET_FILE_DIR:NtStreamerApp>/www)
+endif()
