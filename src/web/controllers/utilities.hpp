@@ -1,6 +1,7 @@
 #pragma once
 
 #include <drogon/HttpController.h>
+#include <codecvt>
 
 using namespace drogon;
 
@@ -32,5 +33,11 @@ public:
         auto resp = HttpResponse::newHttpJsonResponse(json);
         resp->setStatusCode(k404NotFound);
         return resp;
+    }
+
+    static std::string convertFromUtf(std::wstring str)
+    {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        return converter.to_bytes(str);
     }
 };

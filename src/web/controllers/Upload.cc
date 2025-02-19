@@ -3,33 +3,9 @@
 #include <string>
 #include <iostream>
 #include <filesystem>
-#include <codecvt>
 #include <spdlog/spdlog.h>
 
-namespace fs = std::filesystem;
-
 using namespace api;
-
-bool num_str_cmp(const fs::path &x, const fs::path &y)
-{
-    auto get_number = [](const fs::path &path)
-    {
-        auto str_num = path.stem().string();
-
-        std::string num_part{};
-        for (char c : str_num)
-        {
-            if (std::isdigit(c))
-            {
-                num_part += c;
-            }
-        }
-
-        return !num_part.empty() ? std::stoi(num_part) : 0;
-    };
-
-    return get_number(x) < get_number(y);
-}
 
 void Upload::uploadFile(const HttpRequestPtr &req,
                         std::function<void(const HttpResponsePtr &)> &&callback) const
@@ -44,12 +20,22 @@ void Upload::uploadFile(const HttpRequestPtr &req,
     auto &file = fileUpload.getFiles()[0];
     auto md5 = file.getMd5();
 
-    file.save();
+    // save file to disk
+    std::filesystem::path uploadPath(drogon::app().getUploadPath());
+    uploadPath.append("media");
+    int ret = file.save(uploadPath.string());
+    if (ret != 0)
+    {
+        auto resp = Utility::makeFailedResponse("error saving file");
+        callback(resp);
+        return;
+    }
 
-    Json::Value ret;
-    ret["file_upload"] = true;
-    ret["file_md5"] = md5;
-    auto resp = HttpResponse::newHttpJsonResponse(ret);
+    Json::Value jsonRet;
+    jsonRet["file_upload"] = true;
+    jsonRet["file_md5"] = md5;
+    jsonRet["file_name"] = file.getFileName().c_str();
+    auto resp = HttpResponse::newHttpJsonResponse(jsonRet);
 
     spdlog::info("Upload file: '{0}'", file.getFileName());
     callback(resp);
@@ -58,27 +44,41 @@ void Upload::uploadFile(const HttpRequestPtr &req,
 void Upload::getFiles(const HttpRequestPtr &req,
                       std::function<void(const HttpResponsePtr &)> &&callback) const
 {
-    // setup converter
-    using convert_type = std::codecvt_utf8<wchar_t>;
-    std::wstring_convert<convert_type, wchar_t> converter;
-
     Json::Value filesJson;
-    std::string path = drogon::app().getUploadPath();
+    std::filesystem::path filePath(drogon::app().getUploadPath());
+    filePath.append("media");
+
+    if (!std::filesystem::is_directory(filePath))
+    {
+        auto resp = Utility::makeNotFoundResponse("no uploaded files");
+        callback(resp);
+        return;
+    }
 
     // get files in upload dir
-    for (const auto &entry : std::filesystem::directory_iterator(path))
+    int fileCount = 0;
+    for (const auto &entry : std::filesystem::directory_iterator(filePath))
     {
         if (!std::filesystem::is_regular_file(entry.status()))
             continue;
 
         auto filename = entry.path().filename();
-        std::string converted_str = converter.to_bytes(filename.wstring());
+        std::string converted_str = Utility::convertFromUtf(filename.wstring());
 
         // ret json value
         Json::Value ret;
         ret["file_size"] = entry.file_size();
         ret["file_path"] = converted_str;
         filesJson.append(ret);
+        fileCount++;
+    }
+
+    // directory empty
+    if (fileCount <= 0)
+    {
+        auto resp = Utility::makeNotFoundResponse("no uploaded files");
+        callback(resp);
+        return;
     }
 
     // response
