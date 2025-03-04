@@ -1,10 +1,5 @@
 #pragma once
 
-extern "C"
-{
-#include <libavutil/mem.h> //for av_malloc and av_free
-}
-
 #include "spdlog/spdlog.h"
 #include <memory>
 #include <string>
@@ -55,12 +50,12 @@ struct BasePacketData
         }
         if (m_DataPtr != nullptr)
         {
-            av_free(m_DataPtr);
+            free(m_DataPtr);
             m_DataPtr = nullptr;
         }
         if (size > 0)
         {
-            m_DataPtr = (uint8_t *)av_mallocz(size);
+            m_DataPtr = (uint8_t *)malloc(size);
         }
 
         m_sizePtr = size;
@@ -112,7 +107,7 @@ struct FrameData : BasePacketData
     {
         if (m_DataPtr != nullptr)
         {
-            av_free(m_DataPtr);
+            free(m_DataPtr);
             m_DataPtr = nullptr;
         }
     }
@@ -181,7 +176,7 @@ struct PacketData : BasePacketData
     {
         if (m_DataPtr != nullptr)
         {
-            av_free(m_DataPtr);
+            free(m_DataPtr);
             m_DataPtr = nullptr;
         }
     }

@@ -3,7 +3,7 @@
 #include <drogon/drogon.h>
 #include <spdlog/spdlog.h>
 #include "spdlog/sinks/stdout_color_sinks.h"
-#include <NtDummyVideoDevice.h>
+#include "globs.h"
 
 using namespace drogon;
 
@@ -18,6 +18,8 @@ WebServer::WebServer(const std::shared_ptr<CDispatcherBase> &dispatcher) : _disp
         .setLogPath(".", "log", 1000000, 1024 * 8096, true)
         .setupFileLogger()
         .addListener("0.0.0.0", 8080);
+
+    getGlobalDictionary()[UPLOADPATH] = app().getUploadPath();
 
     auto logger = trantor::Logger::getSpdLogger();
 

@@ -12,13 +12,21 @@ else()
 endif()
 
 ########################
+# core library
+########################
+aux_source_directory("core" CORE_SRC_FILES)
+aux_source_directory("core/mioc" COREE_IOC_FILES)
+add_library (NtCore ${BUILDLIB_TYPE} ${CORE_SRC_FILES} ${COREE_IOC_FILES})
+target_include_directories(NtCore PUBLIC "${PROJECT_SOURCE_DIR}/core" "${PROJECT_SOURCE_DIR}/core/mioc")	
+target_link_libraries(NtCore spdlog)
+
+########################
 # device library
 ########################
 aux_source_directory("device" DEVICE_SRC_FILES)
-aux_source_directory("device/mioc" DEVICE_IOC_FILES)
 add_library (NtDevice ${BUILDLIB_TYPE} ${DEVICE_SRC_FILES} ${DEVICE_IOC_FILES})
 target_include_directories(NtDevice PUBLIC ${PROJECT_SOURCE_DIR}/device)	
-target_link_libraries(NtDevice spdlog PkgConfig::FFMPEG)
+target_link_libraries(NtDevice NtCore spdlog PkgConfig::FFMPEG)
 
 #########################
 # rtsp library + Live555
@@ -49,7 +57,7 @@ target_compile_definitions(NtRtsp PUBLIC ${Live555_CFLAGS})
 if(WIN32)
   set(WINSOCK Ws2_32)
 endif()
-target_link_libraries(NtRtsp ${WINSOCK} spdlog NtDevice)
+target_link_libraries(NtRtsp ${WINSOCK} spdlog NtCore)
 
 #####################
 # web library
@@ -58,7 +66,7 @@ aux_source_directory("web" WEB_SRC_FILES)
 aux_source_directory("web/controllers" WEB_CTL_FILES)
 add_library (NtWeb ${BUILDLIB_TYPE} ${WEB_SRC_FILES} ${WEB_CTL_FILES})
 target_include_directories(NtWeb PUBLIC ${PROJECT_SOURCE_DIR}/web)	
-target_link_libraries(NtWeb NtDevice drogon spdlog)
+target_link_libraries(NtWeb NtCore drogon spdlog)
 
 
 #####################

@@ -9,10 +9,10 @@
 #include "NtMediaChannels.h"
 #include "mioc/mioc.h"
 #include "Pipeline.h"
+#include "globs.h"
 
 int main()
 {
-    // init container and services
     auto container = getContainer();
     container->AddSingleton<INtMediaChannels, NtMediaChannels>();
     container->AddSingleton<CDispatcherBase, CDispatcher>();
