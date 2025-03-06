@@ -2,6 +2,7 @@
 #include <map>
 #include <string>
 #include <mutex>
+#include <memory>
 #include <unordered_map>
 #include <shared_mutex>
 
@@ -54,13 +55,13 @@ namespace global
             return emptyString;
         }
 
-        std::string &GlobalDictionary::operator[](const std::string &key)
+        std::string &operator[](const std::string &key)
         {
             std::unique_lock<std::shared_mutex> lock(impl->mutex);
             return impl->data[key];
         }
 
-        std::string &GlobalDictionary::operator[](const char *key)
+        std::string &operator[](const char *key)
         {
             std::unique_lock<std::shared_mutex> lock(impl->mutex);
             return impl->data[key]; // Implicit conversion from const char* to std::string

@@ -17,7 +17,7 @@ endif()
 aux_source_directory("core" CORE_SRC_FILES)
 aux_source_directory("core/mioc" COREE_IOC_FILES)
 add_library (NtCore ${BUILDLIB_TYPE} ${CORE_SRC_FILES} ${COREE_IOC_FILES})
-target_include_directories(NtCore PUBLIC "${PROJECT_SOURCE_DIR}/core" "${PROJECT_SOURCE_DIR}/core/mioc")	
+target_include_directories(NtCore PUBLIC "${PROJECT_SOURCE_DIR}/core" "${PROJECT_SOURCE_DIR}/core/mioc" "${PROJECT_SOURCE_DIR}/device")	
 target_link_libraries(NtCore spdlog)
 
 ########################
@@ -72,8 +72,10 @@ target_link_libraries(NtWeb NtCore drogon spdlog)
 #####################
 # main executable
 #####################
-add_executable(${PROJECT_NAME} main.cpp)
-target_link_libraries (${PROJECT_NAME} NtDevice NtRtsp NtWeb)
+aux_source_directory("app" APP_SRC_FILES)
+add_executable(${PROJECT_NAME} ${APP_SRC_FILES} main.cpp)
+target_include_directories(NtWeb PUBLIC ${PROJECT_SOURCE_DIR}/app)	
+target_link_libraries (${PROJECT_NAME} NtCore NtDevice NtRtsp NtWeb)
 
 ## copy ffmpeg DLLs if WIN
 IF (WIN32)

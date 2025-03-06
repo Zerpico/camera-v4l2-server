@@ -3,13 +3,15 @@
 #include "NtDeviceFormat.h"
 #include <cstdint>
 #include <cstddef>
+#include <string>
+
 // ---------------------------------
 // Device Interface
 // ---------------------------------
 class NtDeviceInterface
 {
 public:
-    virtual ~NtDeviceInterface() {};
+    // virtual ~NtDeviceInterface() {};
     // for read
     virtual size_t read(char *buffer, size_t bufferSize) = 0;
     virtual int64_t getFd() = 0;
@@ -25,4 +27,5 @@ public:
 
     virtual void start() = 0;
     virtual void stop() = 0;
+    virtual bool update(void *userData) = 0;
 };

@@ -1,6 +1,8 @@
 #include "Pipeline.h"
 #include <functional>
 #include <spdlog/spdlog.h>
+#include "NtDummyVideoDevice.h"
+#include "NtFactoryDevice.h"
 
 Pipeline::Pipeline(const std::shared_ptr<INtMediaChannels> &channels)
 {
@@ -41,12 +43,8 @@ void Pipeline::addChannel(const NtChannel &channel)
     // auto reader = std::make_unique<FileSourceReader>();
     std::unique_ptr<NtDeviceInterface> source;
 
-    // Запускаем канал
-    // source->start();
-
     // Сохраняем канал
     channelSources[channel.id] = std::move(source);
-
     spdlog::info("Channel added (id: {0})", channel.id);
 }
 
@@ -68,7 +66,7 @@ void Pipeline::removeChannel(const std::string &channelId)
     spdlog::info("Channel removed (id: {0})", channelId);
 }
 
-void Pipeline::updateChannel(const NtChannel &channel)
+void Pipeline::updateChannel(NtChannel &channel)
 {
     std::lock_guard<std::mutex> lock(pipelineMutex);
     // Проверяем, существует ли канал
@@ -78,7 +76,28 @@ void Pipeline::updateChannel(const NtChannel &channel)
         return;
     }
 
-    // Обновляем канал
+    switch (channel.type)
+    {
+    case ChannelSourceType::Dummy:
+        // addChannel(channel);
+        break;
+
+    default:
+        spdlog::error("Unknown Channel type: {0}, on channel: {1}", static_cast<int>(channel.type), channel.id);
+        return;
+    }
+
+    // Обновляем параметры канала
+    auto device = channelSources[channel.id];
+    if (!device)
+    {
+        device = NtFactoryDevice::createDummyDevice(DummyVideoDeviceParameters::Create(channel.metadata));
+    }
+
     // channelSources[channel.id]->setChannel(channel);
     spdlog::info("Channel updated (id: {0})", channel.id);
+}
+
+void Pipeline::updateDevice(NtDeviceInterface *device)
+{
 }

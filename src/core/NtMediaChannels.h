@@ -18,13 +18,25 @@ enum class ChannelEvent
     Updated
 };
 
-struct NtChannel
+// Перечисление для типов источника
+enum class ChannelSourceType
 {
-    std::string id;     // Уникальный ID канала
-    std::string source; // Путь к файлу
-    bool enable = false;
+    Dummy = 0,
+    File = 1,
+    Camera = 2
 };
 
+// Структура настройки канала
+struct NtChannel
+{
+    bool enable = false;
+    std::string id;                                          // Уникальный ID канала
+    std::string source;                                      // Путь к файлу
+    ChannelSourceType type;                                  // Тип источника
+    std::unordered_map<std::string, std::string> metadata{}; // метаданные канала
+};
+
+// Базовый интерфейс для управления каналами
 class INtMediaChannels
 {
 public:
@@ -35,6 +47,7 @@ public:
     virtual void subscribe(std::function<void(ChannelEvent, NtChannel)> callback) = 0;
 };
 
+// Реализация INtMediaChannels
 class NtMediaChannels : public INtMediaChannels
 {
 

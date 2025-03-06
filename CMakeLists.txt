@@ -6,7 +6,7 @@
 
 project (camera_v4l_rtsp  LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 option (BUILD_FRONT "Build Web UI" OFF)
 

@@ -7,7 +7,7 @@
 
 using namespace drogon;
 
-WebServer::WebServer(const std::shared_ptr<CDispatcherBase> &dispatcher) : _dispatcher(dispatcher)
+WebServer::WebServer(const std::shared_ptr<CDispatcherBase> &dispatcher) : _dispatcher(dispatcher), webPort(8080)
 {
     trantor::Logger::LogLevel logLevel = trantor::Logger::kInfo;
     app()
@@ -17,7 +17,7 @@ WebServer::WebServer(const std::shared_ptr<CDispatcherBase> &dispatcher) : _disp
         .enableSession(std::chrono::duration<double>(1200))
         .setLogPath(".", "log", 1000000, 1024 * 8096, true)
         .setupFileLogger()
-        .addListener("0.0.0.0", 8080);
+        .addListener("0.0.0.0", webPort);
 
     getGlobalDictionary()[UPLOADPATH] = app().getUploadPath();
 
@@ -48,7 +48,7 @@ WebServer::~WebServer()
 
 void WebServer::run()
 {
-    spdlog::info("run webserver on :8080");
+    spdlog::info("run http on :{}", webPort);
     app().run();
 }
 

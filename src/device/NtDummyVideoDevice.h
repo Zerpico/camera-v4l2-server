@@ -2,10 +2,14 @@
 
 #include "NtDeviceInterface.h"
 #include "NtVideoEncoder.h"
-#include <string>
 #include <memory>
 #include <ctime>
 #include <thread>
+#include <unordered_map>
+#include <iostream>
+#include <string>
+#include <charconv> // Required for std::from_chars
+#include <limits>   // Required for std::numeric_limits
 
 extern "C"
 {
@@ -14,6 +18,9 @@ extern "C"
 #include <libavutil/imgutils.h>
 }
 
+// ---------------------------------
+// struct for NtDummyVideoDevice
+// ---------------------------------
 struct DummyVideoDeviceParameters
 {
     DummyVideoDeviceParameters(const int width = 640, const int height = 480, const double fps = 25.0, const char *title_text = NULL, const bool add_timer = false)
@@ -30,18 +37,33 @@ struct DummyVideoDeviceParameters
     double m_fps;
     std::string m_title;
     bool m_add_timer;
+
+    static DummyVideoDeviceParameters Create(std::unordered_map<std::string, std::string> metadata)
+    {
+        DummyVideoDeviceParameters param{};
+        if (metadata.contains("width"))
+        {
+            auto widthStr = metadata["width"];
+            int width = 0;
+            std::from_chars_result res = std::from_chars(widthStr.data(), widthStr.data() + widthStr.size(), width);
+            if (res.ec != std::errc())
+                param.m_width = width;
+            // std::from_chars_result res = std::from_chars(widthStr.begin(), widthStr.end(), &width);
+        }
+        return param;
+    }
 };
 
+// ---------------------------------
+//  NtDummyVideoDevice
+// ---------------------------------
 class NtDummyVideoDevice : public NtDeviceInterface
 {
 
 public:
-    static NtDummyVideoDevice *createNew(const DummyVideoDeviceParameters &params);
+    NtDummyVideoDevice(const DummyVideoDeviceParameters &params);
     virtual ~NtDummyVideoDevice();
     void close();
-
-protected:
-    NtDummyVideoDevice(const DummyVideoDeviceParameters &params);
 
 public:
     virtual size_t read(char *buffer, size_t bufferSize) { return 0; }
@@ -65,6 +87,7 @@ public:
 
     virtual void start();
     virtual void stop();
+    virtual bool update(void *userData);
 
 private:
     DummyVideoDeviceParameters m_params;

@@ -21,4 +21,5 @@ private:
     std::shared_ptr<CDispatcherBase> _dispatcher;
     std::shared_ptr<CListener> _listener;
     void OnMessage(void *userdata);
+    int webPort = 8080;
 };

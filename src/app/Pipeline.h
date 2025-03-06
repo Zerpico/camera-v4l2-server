@@ -16,9 +16,11 @@ public:
 private:
     void addChannel(const NtChannel &channel);
     void removeChannel(const std::string &channelId);
-    void updateChannel(const NtChannel &channel);
+    void updateChannel(NtChannel &channel);
     void onChangeChannel(ChannelEvent typeEvent, NtChannel channel);
-    std::mutex pipelineMutex;
+    void updateDevice(NtDeviceInterface *device);
 
-    std::map<std::string, std::unique_ptr<NtDeviceInterface>> channelSources;
+private:
+    std::mutex pipelineMutex;
+    std::map<std::string, std::shared_ptr<NtDeviceInterface>> channelSources;
 };

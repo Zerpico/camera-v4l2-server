@@ -4,9 +4,8 @@
 #include "UnicastServerMediaSubsession.h"
 
 // NtRtspApp::NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort, int timeout) : _dispatcher(dispatcher)
-NtRtspApp::NtRtspApp(const std::shared_ptr<CDispatcherBase> &dispatcher) : _dispatcher(dispatcher)
+NtRtspApp::NtRtspApp(const std::shared_ptr<CDispatcherBase> &dispatcher) : _dispatcher(dispatcher), rtspPort(554)
 {
-    unsigned short rtspPort = 554;
     scheduler = BasicTaskScheduler::createNew();
     env = NtUsageEnvironment::createNew(*scheduler);
     UserAuthenticationDatabase *authDB = nullptr;
@@ -47,26 +46,26 @@ void NtRtspApp::OnMessage(void *userdata)
     spdlog::info("OnMessage called, value: {} , from SubscriberId {}", *value, _listener->GetSubscriberId());
 }
 
-bool NtRtspApp::Start()
+bool NtRtspApp::run()
 {
     if (f_state_ == 0)
         return false;
 
-    thread_capture_ = std::thread(&NtRtspApp::RunThread, this);
     f_state_ = 0;
+    thread_capture_ = std::thread(&NtRtspApp::runThread, this);
 
     return true;
 }
 
-bool NtRtspApp::Stop()
+bool NtRtspApp::stop()
 {
+    f_state_ = 1;
     return false;
 }
 
-void NtRtspApp::RunThread()
+void NtRtspApp::runThread()
 {
-    spdlog::info("Start rtsp thread");
-
+    spdlog::info("run rtsp on :{}", rtspPort);
     // do the loop
     while (true)
     {
@@ -79,7 +78,7 @@ void NtRtspApp::RunThread()
     }
 }
 
-ServerMediaSession *NtRtspApp::AddUnicastSession(const std::string &url, StreamReplicator *videoReplicator, StreamReplicator *audioReplicator)
+ServerMediaSession *NtRtspApp::addUnicastSession(const std::string &url, StreamReplicator *videoReplicator, StreamReplicator *audioReplicator)
 {
     // Create Unicast Session
     std::list<ServerMediaSubsession *> subSession;

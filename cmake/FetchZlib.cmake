@@ -1,5 +1,5 @@
 #only on Windows
-if (WIN32 AND MSVC)
+#if (WIN32 AND MSVC)
 find_package(ZLIB QUIET)
 
 if(NOT ZLIB_FOUND)
@@ -53,4 +53,4 @@ if(NOT ZLIB_FOUND)
 
   set(ZLIB_ROOT ${CMAKE_BINARY_DIR}/_deps/zlib-install CACHE INTERNAL "")
 endif()
-endif()
+#endif()

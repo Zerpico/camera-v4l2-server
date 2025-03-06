@@ -1,7 +1,6 @@
 #include "CameraDeviceSource.h"
 #include "WebServer.h"
 #include "NtRtspApp.h"
-#include "NtDummyVideoDevice.h"
 #include <spdlog/spdlog.h>
 #include "avcodec_utils.h"
 #include "Observer.h"
@@ -10,6 +9,7 @@
 #include "mioc/mioc.h"
 #include "Pipeline.h"
 #include "globs.h"
+#include "NtFactoryDevice.h"
 
 int main()
 {
@@ -21,13 +21,21 @@ int main()
     container->AddSingleton<INtRtspApp, NtRtspApp, CDispatcherBase>();
     set_external_avlogger(spdlog::default_logger());
 
-    // just for test
+    // just for test new Dummy device
     // {
-    //     auto channels = container->Resolve<INtMediaChannels>();
-    //     channels->addChannel("hello");
-    //     channels->addChannel("hello-world");
+    //     auto newChannel = container->Resolve<INtMediaChannels>()->addChannel();
+    //     newChannel.type = ChannelSourceType::Dummy;
+    //     newChannel.enable = true;
+    //     auto isUpdate = container->Resolve<INtMediaChannels>()->updateChannel(newChannel);
     // }
+    {
+        auto newChannel = container->Resolve<INtMediaChannels>()->addChannel();
+        newChannel.type = ChannelSourceType::Dummy;
+        newChannel.enable = true;
+        newChannel.metadata["width"] = "640";
+        auto isUpdate = container->Resolve<INtMediaChannels>()->updateChannel(newChannel);
+    }
 
-    container->Resolve<INtRtspApp>()->Start();
+    container->Resolve<INtRtspApp>()->run();
     container->Resolve<IWebServer>()->run();
 }

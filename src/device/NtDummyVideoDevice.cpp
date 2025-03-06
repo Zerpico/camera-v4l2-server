@@ -5,20 +5,6 @@
 
 using namespace std::chrono;
 
-NtDummyVideoDevice *NtDummyVideoDevice::createNew(const DummyVideoDeviceParameters &params)
-{
-    NtDummyVideoDevice *device = new NtDummyVideoDevice(params);
-    if (device)
-    {
-        if (device->getFd() == -1)
-        {
-            delete device;
-            device = NULL;
-        }
-    }
-    return device;
-}
-
 NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     : m_params(params)
 {
@@ -68,13 +54,19 @@ inline void NtDummyVideoDevice::fill_frame(AVFrame &frame, uint8_t *buffer)
 
 void NtDummyVideoDevice::start()
 {
-    thread_capture = std::thread(&NtDummyVideoDevice::runThread, this);
+    if (mStop)
+        thread_capture = std::thread(&NtDummyVideoDevice::runThread, this);
 }
 void NtDummyVideoDevice::stop()
 {
     mStop = 0;
     if (thread_capture.joinable())
         thread_capture.join();
+}
+
+bool NtDummyVideoDevice::update(void *userData)
+{
+    return false;
 }
 
 void NtDummyVideoDevice::runThread()
