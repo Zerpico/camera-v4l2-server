@@ -17,8 +17,8 @@ private:
     void addChannel(const NtChannel &channel);
     void removeChannel(const std::string &channelId);
     void updateChannel(NtChannel &channel);
-    void onChangeChannel(ChannelEvent typeEvent, NtChannel channel);
-    void updateDevice(NtDeviceInterface *device);
+    void onChangeChannel(ChannelEvent typeEvent, NtChannel &channel);
+    bool updateDevice(NtChannel &channel, std::shared_ptr<NtDeviceInterface> device);
 
 private:
     std::mutex pipelineMutex;

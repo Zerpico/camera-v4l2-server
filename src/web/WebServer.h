@@ -1,7 +1,7 @@
 #pragma once
 #include <Observer.h>
 #include <NtMediaChannels.h>
-
+#include "DataPackets.h"
 class IWebServer
 {
 public:
@@ -20,6 +20,6 @@ public:
 private:
     std::shared_ptr<CDispatcherBase> _dispatcher;
     std::shared_ptr<CListener> _listener;
-    void OnMessage(void *userdata);
+    void OnMessage(std::shared_ptr<PacketData> userdata);
     int webPort = 8080;
 };

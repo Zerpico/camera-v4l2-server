@@ -24,6 +24,13 @@ void Channel::getChannels(const HttpRequestPtr &req,
             ret["channel_id"] = channel.id;
             ret["channel_source"] = channel.source;
             ret["channel_enable"] = channel.enable;
+            ret["channel_type"] = static_cast<int>(channel.type);
+            Json::Value metadata;
+            for (const auto &pair : channel.metadata)
+            {
+                metadata[pair.first] = pair.second;
+            }
+            ret["channel_metadata"] = metadata;
             channelJson.append(ret);
         }
         Json::Value res;

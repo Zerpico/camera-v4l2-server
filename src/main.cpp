@@ -14,13 +14,14 @@
 int main()
 {
     auto container = getContainer();
-    container->AddSingleton<INtMediaChannels, NtMediaChannels>();
     container->AddSingleton<CDispatcherBase, CDispatcher>();
+    container->AddSingleton<INtMediaChannels, NtMediaChannels>();
     container->AddSingleton<IPipeline, Pipeline, INtMediaChannels>();
     container->AddSingleton<IWebServer, WebServer, CDispatcherBase>();
     container->AddSingleton<INtRtspApp, NtRtspApp, CDispatcherBase>();
     set_external_avlogger(spdlog::default_logger());
 
+    auto disp = container->Resolve<CDispatcherBase>();
     // just for test new Dummy device
     // {
     //     auto newChannel = container->Resolve<INtMediaChannels>()->addChannel();

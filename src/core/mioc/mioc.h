@@ -5,14 +5,14 @@
 #ifndef _MIOC_H_
 #define _MIOC_H_
 
-#ifdef _WIN32
-#define MYCONTAINER_API __declspec(dllexport)
-#else
-#define MYCONTAINER_API __declspec(dllimport)
-#endif
+// #ifdef _WIN32
+// #define MYCONTAINER_API __declspec(dllexport)
+// #else
+// #define MYCONTAINER_API __declspec(dllimport)
+// #endif
 
 #include "ServiceContainer.h"
 #include "SingletonContainer.h"
 
-extern MYCONTAINER_API mioc::ServiceContainerPtr getContainer();
+extern mioc::ServiceContainerPtr getContainer();
 #endif // _MIOC_H_

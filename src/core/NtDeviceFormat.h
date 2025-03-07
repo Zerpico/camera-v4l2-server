@@ -2,7 +2,7 @@
 enum class NtDeviceFormat
 {
     FMT_NONE = -1,
-    FMT_JPEG,
+    // FMT_JPEG,
     FMT_MJPEG,
     FMT_MPEGTS,
     FMT_H264,

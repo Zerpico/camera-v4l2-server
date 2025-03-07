@@ -4,34 +4,35 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include "NtDeviceFormat.h"
 
 #define MEM_ALIGN 64
 
-enum class CodecType
-{
-    NONE,
-    H264,
-    H265,
-    MPEG2,
-    MPEG4,
-    MJPEG,
-    VP8,
-    VP9
-};
+// enum class CodecType
+// {
+//     NONE,
+//     H264,
+//     H265,
+//     MPEG2,
+//     MPEG4,
+//     MJPEG,
+//     VP8,
+//     VP9
+// };
 
-struct AVFrame
-{
-    explicit AVFrame(const size_t size = 0)
-        : buffer(new uint8_t[size], std::default_delete<uint8_t[]>()),
-          size(size),
-          timestamp(0)
-    {
-    }
+// struct AVFrame
+// {
+//     explicit AVFrame(const size_t size = 0)
+//         : buffer(new uint8_t[size], std::default_delete<uint8_t[]>()),
+//           size(size),
+//           timestamp(0)
+//     {
+//     }
 
-    std::shared_ptr<uint8_t> buffer;
-    size_t size;
-    uint32_t timestamp;
-};
+//     std::shared_ptr<uint8_t> buffer;
+//     size_t size;
+//     uint32_t timestamp;
+// };
 
 /**
  Safe structure for storing data pointer and operations on them (clear, resize, copy, swap)
@@ -83,14 +84,14 @@ struct BasePacketData
 
     virtual void swap(void *sw_data) {}
 
-    int get_refId(void) const { return m_refId; };
-    void set_refId(int id) { m_refId = id; };
+    std::string get_refId(void) const { return m_refId; };
+    void set_refId(std::string id) { m_refId = id; };
 
 protected:
     BasePacketData() : m_DataPtr(nullptr) {};
     int m_sizePtr = 0;
     uint8_t *m_DataPtr = nullptr;
-    int m_refId = 0;
+    std::string m_refId{};
 };
 
 /**
@@ -168,7 +169,7 @@ private:
  */
 struct PacketData : BasePacketData
 {
-    PacketData(const int sizeFrame = 0) : BasePacketData()
+    PacketData(NtDeviceFormat format = NtDeviceFormat::FMT_NONE, const int sizeFrame = 0) : BasePacketData()
     {
         resize(sizeFrame);
     }
@@ -181,9 +182,15 @@ struct PacketData : BasePacketData
         }
     }
 
+    NtDeviceFormat get_format(void) const { return m_format; };
+    void set_format(NtDeviceFormat format) { m_format = format; };
+
     void swap(PacketData &sw_data)
     {
         std::swap(m_DataPtr, sw_data.m_DataPtr);
         std::swap(m_sizePtr, sw_data.m_sizePtr);
     }
+
+private:
+    NtDeviceFormat m_format = NtDeviceFormat::FMT_NONE;
 };

@@ -3,7 +3,7 @@
 #include <vector>
 #include <mutex>
 #include <functional>
-
+#include "DataPackets.h"
 // Subscriber
 //////////////////////////
 
@@ -12,7 +12,7 @@ class CSubscriber
 {
 public:
     virtual ~CSubscriber() {}
-    virtual void MessageHandler(void *pContext) = 0;
+    virtual void MessageHandler(std::shared_ptr<PacketData> pContext) = 0;
     virtual void UnsubscribeHandler() = 0;
     SubscriberId GetSubscriberId() { return (SubscriberId)this; }
 };
@@ -27,6 +27,7 @@ public:
 
     virtual SubscriberId Subscribe(std::shared_ptr<CSubscriber> pNewSubscriber) = 0;
     virtual bool Unsubscribe(SubscriberId id) = 0;
+    virtual void SendMessageLP(std::shared_ptr<PacketData> data) = 0;
 };
 // Dispatcher
 /////////////////////////////////
@@ -123,7 +124,7 @@ public:
         }
         return true;
     }
-    void SendMessageLP(void *pContext)
+    void SendMessageLP(std::shared_ptr<PacketData> pContext)
     {
         CSubscriberListPtr pSubscriberList;
         {
@@ -153,12 +154,12 @@ private:
 class CListener : virtual public CSubscriber
 {
 public:
-    void SetMessageFunc(std::function<void(void *)> handler)
+    void SetMessageFunc(std::function<void(std::shared_ptr<PacketData>)> handler)
     {
         _handler = handler;
     }
 
-    virtual void MessageHandler(void *pContext)
+    virtual void MessageHandler(std::shared_ptr<PacketData> pContext)
     {
         // Эмулируем блокирующий вызов SendMessage
         std::scoped_lock<std::mutex> lock(m_Lock);
@@ -172,5 +173,5 @@ public:
 
 private:
     std::mutex m_Lock;
-    std::function<void(void *)> _handler = NULL;
+    std::function<void(std::shared_ptr<PacketData>)> _handler = NULL;
 };

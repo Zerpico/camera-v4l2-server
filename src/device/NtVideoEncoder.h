@@ -15,6 +15,7 @@ extern "C"
 
 #include <thread>
 #include "ThreadsafeQueue.h"
+#include "NtDeviceFormat.h"
 
 class NtVideoEncoder
 {
@@ -26,7 +27,8 @@ protected:
 public:
     NtVideoEncoder(std::string codec_name, int width = 640, int height = 480, AVPixelFormat format = AV_PIX_FMT_YUV420P, double fps = 25.0);
     ~NtVideoEncoder();
-    void Push(AVFrame *frame);
+    void Push(const AVFrame *frame);
+    AVPacket *Pull();
 
     int getWidth()
     {
@@ -36,9 +38,38 @@ public:
     {
         return _codecCtx->height;
     }
-    int getVideoFormat()
+    NtDeviceFormat getVideoFormat()
     {
-        return _codecCtx->pix_fmt;
+        switch (_codecCtx->codec->id)
+        {
+        case AVCodecID::AV_CODEC_ID_H264:
+            return NtDeviceFormat::FMT_H264;
+            break;
+
+        case AVCodecID::AV_CODEC_ID_HEVC:
+            return NtDeviceFormat::FMT_HEVC;
+            break;
+
+        case AVCodecID::AV_CODEC_ID_VP8:
+            return NtDeviceFormat::FMT_VP8;
+            break;
+
+        case AVCodecID::AV_CODEC_ID_VP9:
+            return NtDeviceFormat::FMT_VP9;
+            break;
+
+        case AVCodecID::AV_CODEC_ID_MJPEG:
+            return NtDeviceFormat::FMT_MJPEG;
+            break;
+
+        case AVCodecID::AV_CODEC_ID_MPEG2TS:
+            return NtDeviceFormat::FMT_MPEGTS;
+            break;
+
+        default:
+            return NtDeviceFormat::FMT_NONE;
+            break;
+        }
     }
     double getFramerate()
     {

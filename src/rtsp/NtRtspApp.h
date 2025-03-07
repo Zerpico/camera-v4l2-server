@@ -5,6 +5,7 @@
 #include <Observer.h>
 #include <StreamReplicator.hh>
 #include <list>
+#include "DataPackets.h"
 
 class INtRtspApp
 {
@@ -40,7 +41,7 @@ private:
     // CDispatcherBase *_dispatcher;
     std::shared_ptr<CDispatcherBase> _dispatcher;
     std::shared_ptr<CListener> _listener;
-    void OnMessage(void *userdata);
+    void OnMessage(std::shared_ptr<PacketData> userdata);
 
     int rtspPort = 554;
 };

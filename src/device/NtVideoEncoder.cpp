@@ -2,6 +2,7 @@
 #include <string>
 #include <spdlog/spdlog.h>
 #include <memory>
+#include <DataPackets.h>
 
 NtVideoEncoder::NtVideoEncoder(std::string codec_name, int width, int height, AVPixelFormat format, double fps)
     : _codecCtx(nullptr)
@@ -73,8 +74,15 @@ NtVideoEncoder::~NtVideoEncoder()
 {
 }
 
-void NtVideoEncoder::Push(AVFrame *frame)
+void NtVideoEncoder::Push(const AVFrame *frame)
 {
     int ret = avcodec_send_frame(_codecCtx.get(), frame);
     ret = avcodec_receive_packet(_codecCtx.get(), _outPacket.get());
+}
+
+AVPacket *NtVideoEncoder::Pull()
+{
+    // PacketData data(_outPacket->size);
+    // data.copy(_outPacket->data, _outPacket->size);
+    return _outPacket.get();
 }

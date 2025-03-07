@@ -36,8 +36,8 @@ WebServer::WebServer(const std::shared_ptr<CDispatcherBase> &dispatcher) : _disp
     auto lev = logger->level();
 
     _listener = std::make_shared<CListener>();
-    _listener->SetMessageFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
-    _dispatcher->Subscribe(_listener);
+    // _listener->SetMessageFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
+    //  _dispatcher->Subscribe(_listener);
 }
 
 WebServer::~WebServer()
@@ -52,8 +52,8 @@ void WebServer::run()
     app().run();
 }
 
-void WebServer::OnMessage(void *userdata)
+void WebServer::OnMessage(std::shared_ptr<PacketData> userdata)
 {
-    int *value = static_cast<int *>(userdata);
-    spdlog::info("OnMessage called, value: {} , from SubscriberId {}", *value, _listener->GetSubscriberId());
+    // int *value = static_cast<int *>(userdata);
+    spdlog::info("OnMessage called, size: {} , from SubscriberId {}", userdata->size(), _listener->GetSubscriberId());
 }

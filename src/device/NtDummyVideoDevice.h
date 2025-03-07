@@ -6,10 +6,10 @@
 #include <ctime>
 #include <thread>
 #include <unordered_map>
-#include <iostream>
 #include <string>
-#include <charconv> // Required for std::from_chars
-#include <limits>   // Required for std::numeric_limits
+#include "utils.h"
+#include <format>
+#include <Observer.h>
 
 extern "C"
 {
@@ -23,34 +23,41 @@ extern "C"
 // ---------------------------------
 struct DummyVideoDeviceParameters
 {
-    DummyVideoDeviceParameters(const int width = 640, const int height = 480, const double fps = 25.0, const char *title_text = NULL, const bool add_timer = false)
-        : m_devName("dummy_video"), m_width(width), m_height(height), m_fps(fps)
+public:
+    DummyVideoDeviceParameters(std::string id, const int width = 640, const int height = 480, const double fps = 25.0, const char *title_text = NULL, const bool add_timer = false)
+        : m_id("dummy_video"), m_width(width), m_height(height), m_fps(fps)
     {
         if (title_text)
             m_title = title_text;
         m_add_timer = add_timer;
     }
 
-    std::string m_devName{};
+    std::string m_id{};
     int m_width;
     int m_height;
     double m_fps;
     std::string m_title;
     bool m_add_timer;
 
-    static DummyVideoDeviceParameters Create(std::unordered_map<std::string, std::string> metadata)
+    static DummyVideoDeviceParameters Create(std::string id, std::unordered_map<std::string, std::string> &metadata)
     {
-        DummyVideoDeviceParameters param{};
-        if (metadata.contains("width"))
-        {
-            auto widthStr = metadata["width"];
-            int width = 0;
-            std::from_chars_result res = std::from_chars(widthStr.data(), widthStr.data() + widthStr.size(), width);
-            if (res.ec != std::errc())
-                param.m_width = width;
-            // std::from_chars_result res = std::from_chars(widthStr.begin(), widthStr.end(), &width);
-        }
+        DummyVideoDeviceParameters param{id};
+        parseParam(metadata["width"], param.m_width);
+        parseParam(metadata["height"], param.m_height);
+        parseParam(metadata["fps"], param.m_fps);
+
         return param;
+    }
+
+private:
+    template <typename T>
+    static void parseParam(std::string &paramStr, T &param)
+    {
+        T val = 0;
+        if (tryParseString<T>(paramStr, val))
+            param = val;
+        else
+            paramStr = std::format("{}", param);
     }
 };
 
@@ -90,6 +97,7 @@ public:
     virtual bool update(void *userData);
 
 private:
+    std::shared_ptr<CDispatcherBase> _dispatcher = NULL;
     DummyVideoDeviceParameters m_params;
     std::shared_ptr<AVFrame> m_buffer_frame = NULL;
     size_t m_buffer_size = 0;

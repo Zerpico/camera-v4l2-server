@@ -3,12 +3,13 @@
 #include <spdlog/spdlog.h>
 #include "NtDummyVideoDevice.h"
 #include "NtFactoryDevice.h"
+#include "utils.h"
 
 Pipeline::Pipeline(const std::shared_ptr<INtMediaChannels> &channels)
 {
     // channels->subscribe(std::bind(&Pipeline::onChangeChannel, this, std::placeholders::_1));
     //  callback = std::bind(&foo, "test", std::placeholders::_1, 3.f);
-    channels->subscribe([this](ChannelEvent event, NtChannel channel)
+    channels->subscribe([this](ChannelEvent event, NtChannel &channel)
                         { this->onChangeChannel(event, channel); });
 }
 
@@ -16,7 +17,7 @@ Pipeline::~Pipeline()
 {
 }
 
-void Pipeline::onChangeChannel(ChannelEvent typeEvent, NtChannel channel)
+void Pipeline::onChangeChannel(ChannelEvent typeEvent, NtChannel &channel)
 {
     switch (typeEvent)
     {
@@ -76,28 +77,31 @@ void Pipeline::updateChannel(NtChannel &channel)
         return;
     }
 
-    switch (channel.type)
-    {
-    case ChannelSourceType::Dummy:
-        // addChannel(channel);
-        break;
-
-    default:
-        spdlog::error("Unknown Channel type: {0}, on channel: {1}", static_cast<int>(channel.type), channel.id);
-        return;
-    }
-
     // Обновляем параметры канала
     auto device = channelSources[channel.id];
-    if (!device)
-    {
-        device = NtFactoryDevice::createDummyDevice(DummyVideoDeviceParameters::Create(channel.metadata));
-    }
-
-    // channelSources[channel.id]->setChannel(channel);
-    spdlog::info("Channel updated (id: {0})", channel.id);
+    if (updateDevice(channel, device))
+        spdlog::info("Channel updated (id: {0})", channel.id);
 }
 
-void Pipeline::updateDevice(NtDeviceInterface *device)
+bool Pipeline::updateDevice(NtChannel &channel, std::shared_ptr<NtDeviceInterface> device)
 {
+    if (channel.type == ChannelSourceType::Dummy)
+    {
+        auto deviceParam = DummyVideoDeviceParameters::Create(channel.id, channel.metadata);
+        if (!device)
+            device = NtFactoryDevice::createDummyDevice(deviceParam);
+        else
+            device->update(&deviceParam);
+
+        if (channel.enable)
+            device->start();
+        else
+            device->stop();
+        return true;
+    }
+    else
+    {
+        spdlog::error("Unknown Channel type: {0}, on channel: {1}", static_cast<int>(channel.type), channel.id);
+        return false;
+    }
 }

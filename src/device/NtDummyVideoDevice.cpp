@@ -2,12 +2,17 @@
 #include <memory>
 #include <stdexcept>
 #include <chrono>
+#include "mioc/mioc.h"
+#include <DataPackets.h>
+#include <NtMediaChannels.h>
 
 using namespace std::chrono;
 
 NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     : m_params(params)
 {
+    _dispatcher = getContainer()->Resolve<CDispatcherBase>();
+
     // allocate avFrame and fill props and data
     m_buffer_frame = std::shared_ptr<AVFrame>(av_frame_alloc(), [](AVFrame *ptr)
                                               { av_frame_free(&ptr); });
@@ -23,7 +28,7 @@ NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     m_buffer_size = av_image_get_buffer_size((AVPixelFormat)m_buffer_frame->format, m_buffer_frame->width, m_buffer_frame->height, 4);
     m_buffer = std::make_unique<uint8_t[]>(m_buffer_size);
 
-    m_encoder = std::make_shared<NtVideoEncoder>("libx264", m_params.m_width, m_params.m_height, AVPixelFormat::AV_PIX_FMT_YUV420P, 25.0);
+    m_encoder = std::make_shared<NtVideoEncoder>("libx264", m_params.m_width, m_params.m_height, AVPixelFormat::AV_PIX_FMT_YUV420P, m_params.m_fps);
 }
 
 NtDummyVideoDevice::~NtDummyVideoDevice()
@@ -76,13 +81,22 @@ void NtDummyVideoDevice::runThread()
     while (mStop)
     {
         auto start = std::chrono::high_resolution_clock::now();
+        // fill frame and encode
         fill_frame(*m_buffer_frame.get(), m_buffer.get());
         m_encoder->Push(m_buffer_frame.get());
         auto end = std::chrono::high_resolution_clock::now(); // td::chrono::steady_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start);
 
+        // packet
+        auto packet = m_encoder->Pull();
+        auto data = std::make_shared<PacketData>(m_encoder->getVideoFormat());
+        data->copy(packet->data, packet->size);
+        data->set_refId(m_params.m_id);
         auto sleepMs = maxElapsedMs - duration;
         if (duration < maxElapsedMs)
             std::this_thread::sleep_for(sleepMs);
+
+        // send to bus
+        _dispatcher->SendMessageLP(data);
     }
 }

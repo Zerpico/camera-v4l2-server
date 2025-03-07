@@ -2,6 +2,7 @@
 #include "NtRtspServer.h"
 #include "spdlog/spdlog.h"
 #include "UnicastServerMediaSubsession.h"
+#include "DataPackets.h"
 
 // NtRtspApp::NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort, int timeout) : _dispatcher(dispatcher)
 NtRtspApp::NtRtspApp(const std::shared_ptr<CDispatcherBase> &dispatcher) : _dispatcher(dispatcher), rtspPort(554)
@@ -40,10 +41,11 @@ NtRtspApp::~NtRtspApp()
     delete scheduler;
 }
 
-void NtRtspApp::OnMessage(void *userdata)
+void NtRtspApp::OnMessage(std::shared_ptr<PacketData> userdata)
 {
-    int *value = static_cast<int *>(userdata);
-    spdlog::info("OnMessage called, value: {} , from SubscriberId {}", *value, _listener->GetSubscriberId());
+    // PacketData *value = static_cast<PacketData *>(userdata);
+    spdlog::info("OnMessage called, size: {} , from SubscriberId {}", userdata->size(), _listener->GetSubscriberId());
+    // delete value;
 }
 
 bool NtRtspApp::run()

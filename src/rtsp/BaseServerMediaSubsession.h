@@ -35,8 +35,6 @@ public:
             return "video/H264";
         case NtDeviceFormat::FMT_MJPEG:
             return "video/JPEG";
-        case NtDeviceFormat::FMT_JPEG:
-            return "video/JPEG";
         case NtDeviceFormat::FMT_VP8:
             return "video/VP8";
         case NtDeviceFormat::FMT_VP9:

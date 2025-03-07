@@ -50,7 +50,7 @@ bool NtMediaChannels::removeChannel(const std::string &id)
     return false; // Канал не найден
 }
 
-bool NtMediaChannels::updateChannel(const NtChannel &newChannel)
+bool NtMediaChannels::updateChannel(NtChannel &newChannel)
 {
     std::lock_guard<std::mutex> lock(mutex);
     for (auto &channel : channels)
@@ -58,8 +58,8 @@ bool NtMediaChannels::updateChannel(const NtChannel &newChannel)
         if (channel.id == newChannel.id)
         {
             NtChannel oldChannel = channel;
-            channel = newChannel; // Обновляем канал
             notify(ChannelEvent::Updated, newChannel);
+            channel = newChannel; // Обновляем канал
             return true;
         }
     }
