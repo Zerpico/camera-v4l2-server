@@ -113,7 +113,7 @@ public:
     }
 
 private:
-    std::mutex mut;
+    mutable std::mutex mut;
     std::queue<std::shared_ptr<T>> data_queue;
     const size_t size_limit;
     std::condition_variable data_cond;

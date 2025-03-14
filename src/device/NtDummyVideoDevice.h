@@ -73,18 +73,7 @@ public:
     void close();
 
 public:
-    virtual size_t read(char *buffer, size_t bufferSize) { return 0; }
-    virtual int64_t getFd()
-    {
-        if (_fd < 0)
-        {
-            std::time_t result = std::time(nullptr);
-            std::localtime(&result);
-            _fd = (long)result;
-        }
-        return _fd;
-    }
-    virtual unsigned long getBufferSize() { return 0; }
+    virtual std::string getFd() { return m_params.m_id; }
 
     virtual int getWidth() { return m_encoder->getWidth(); }
     virtual int getHeight() { return m_encoder->getHeight(); }

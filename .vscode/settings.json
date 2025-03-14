@@ -101,7 +101,10 @@
         "xutility": "cpp",
         "resumable": "cpp",
         "cfenv": "cpp",
-        "expected": "cpp"
+        "expected": "cpp",
+        "hash_map": "cpp",
+        "text_encoding": "cpp",
+        "valarray": "cpp"
     },
     "search.useIgnoreFiles": false
 }
