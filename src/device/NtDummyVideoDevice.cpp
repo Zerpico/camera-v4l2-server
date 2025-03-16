@@ -11,7 +11,7 @@ using namespace std::chrono;
 NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     : m_params(params)
 {
-    _dispatcher = getContainer()->Resolve<CDispatcherBase>();
+    _dispatcher = getContainer()->Resolve<Observer>();
 
     // allocate avFrame and fill props and data
     m_buffer_frame = std::shared_ptr<AVFrame>(av_frame_alloc(), [](AVFrame *ptr)
@@ -97,6 +97,6 @@ void NtDummyVideoDevice::runThread()
             std::this_thread::sleep_for(sleepMs);
 
         // send to bus
-        _dispatcher->SendMessageLP(data);
+        _dispatcher->_dispatcher->SendMessageLP(data);
     }
 }
