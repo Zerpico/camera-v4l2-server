@@ -7,7 +7,7 @@
 
 using namespace drogon;
 
-WebServer::WebServer(const std::shared_ptr<CDispatcherBase> &dispatcher) : _dispatcher(dispatcher), webPort(8080)
+WebServer::WebServer(const std::shared_ptr<Observer> &dispatcher) : _dispatcher(dispatcher), webPort(8080)
 {
     trantor::Logger::LogLevel logLevel = trantor::Logger::kInfo;
     app()
@@ -35,15 +35,16 @@ WebServer::WebServer(const std::shared_ptr<CDispatcherBase> &dispatcher) : _disp
     spdlog::set_default_logger(logger);
     auto lev = logger->level();
 
-    _listener = std::make_shared<CListener>();
+    _listener = std::make_shared<DataProcessor>("webserver");
+    //_listener->onEvent()
     // _listener->SetMessageFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
-    //  _dispatcher->Subscribe(_listener);
+    _dispatcher->subscribe(_listener);
 }
 
 WebServer::~WebServer()
 {
     app().quit();
-    _dispatcher->Unsubscribe(_listener->GetSubscriberId());
+    _dispatcher->unsubscribe(_listener);
 }
 
 void WebServer::run()
@@ -55,5 +56,5 @@ void WebServer::run()
 void WebServer::OnMessage(std::shared_ptr<PacketData> userdata)
 {
     // int *value = static_cast<int *>(userdata);
-    spdlog::info("OnMessage called, size: {} , from SubscriberId {}", userdata->size(), _listener->GetSubscriberId());
+    // spdlog::info("OnMessage called, size: {} , from SubscriberId {}", userdata->size(), _listener->GetSubscriberId());
 }

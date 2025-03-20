@@ -37,7 +37,7 @@ include("FetchFFmpeg")
 CPMAddPackage(
   NAME Jsoncpp
   GITHUB_REPOSITORY open-source-parsers/jsoncpp
-  GIT_TAG 1.9.4
+  GIT_TAG 1.9.6
   OPTIONS
       "JSONCPP_WITH_POST_BUILD_UNITTEST OFF"
       "JSONCPP_WITH_TESTS OFF"
@@ -91,7 +91,7 @@ include_directories("${spdlog_SOURCE_DIR}/include")
 CPMAddPackage(
   NAME drogon
   GITHUB_REPOSITORY drogonframework/drogon
-  GIT_TAG        v1.9.9
+  GIT_TAG        v1.9.10
   GIT_SHALLOW TRUE
   DOWNLOAD_ONLY YES
 )
@@ -111,10 +111,18 @@ set(BUILD_CTL OFF CACHE BOOL "Build drogon ctl" FORCE)
 set(spdlog_DIR ${spdlog_BUILD_DIR} CACHE STRING "Build drogon with spdlog" FORCE)
 
 #stupid hack for force using jsoncpp as static
-  execute_process(COMMAND ${PATCH} -d ${drogon_SOURCE_DIR} -f -p 1 -i ${CMAKE_SOURCE_DIR}/patches/003_drogon_jsoncpp_static_win32
+execute_process(COMMAND ${PATCH} -d ${drogon_SOURCE_DIR} -f -p 1 -i ${CMAKE_SOURCE_DIR}/patches/003_drogon_jsoncpp_static_win32
   TIMEOUT 15
   COMMAND_ECHO STDOUT
   RESULT_VARIABLE ret)
+
+#stupid hack for force using wchar on mingw (only for using spdlog in drogon)
+if(NOT MSVC)
+execute_process(COMMAND ${PATCH} -d ${drogon_SOURCE_DIR} -f -p 1 -i ${CMAKE_SOURCE_DIR}/patches/004_drogon_spdlog_minwg
+  TIMEOUT 15
+  COMMAND_ECHO STDOUT
+  RESULT_VARIABLE ret)
+endif()
 
 add_subdirectory(${drogon_SOURCE_DIR} ${drogon_BUILD_DIR})
 target_compile_definitions(drogon PUBLIC DROGON_SPDLOG_SUPPORT)

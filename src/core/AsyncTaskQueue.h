@@ -4,6 +4,8 @@
 #include <memory>
 #include <queue>
 #include <mutex>
+#include <thread>
+#include <condition_variable>
 
 /// @brief Асинхронная очередь задач
 class AsyncTaskQueue

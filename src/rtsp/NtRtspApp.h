@@ -19,7 +19,7 @@ class NtRtspApp : public INtRtspApp
 
 public:
     // NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort = 554, int timeout = 10);
-    NtRtspApp(const std::shared_ptr<CDispatcherBase> &dispatcher);
+    NtRtspApp(const std::shared_ptr<Observer> &dispatcher);
     ~NtRtspApp();
     bool run();
     bool stop();
@@ -39,8 +39,8 @@ private:
     NtRTSPServer *rtsp_server;
 
     // CDispatcherBase *_dispatcher;
-    std::shared_ptr<CDispatcherBase> _dispatcher;
-    std::shared_ptr<CListener> _listener;
+    std::shared_ptr<Observer> _dispatcher;
+    std::shared_ptr<Listener> _listener;
     void OnMessage(std::shared_ptr<PacketData> userdata);
 
     int rtspPort = 554;

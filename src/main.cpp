@@ -3,7 +3,7 @@
 #include "NtRtspApp.h"
 #include <spdlog/spdlog.h>
 #include "avcodec_utils.h"
-#include "IObserver.h"
+#include "Observer.h"
 #include "ThreadsafeQueue.h"
 #include "NtMediaChannels.h"
 #include "mioc/mioc.h"
@@ -17,11 +17,11 @@ int main()
     container->AddSingleton<Observer, EventSource>();
     container->AddSingleton<INtMediaChannels, NtMediaChannels>();
     container->AddSingleton<IPipeline, Pipeline, INtMediaChannels>();
-    container->AddSingleton<IWebServer, WebServer, CDispatcherBase>();
-    container->AddSingleton<INtRtspApp, NtRtspApp, CDispatcherBase>();
+    container->AddSingleton<IWebServer, WebServer, Observer>();
+    container->AddSingleton<INtRtspApp, NtRtspApp, Observer>();
     set_external_avlogger(spdlog::default_logger());
 
-    auto disp = container->Resolve<CDispatcherBase>();
+    auto disp = container->Resolve<Observer>();
     // just for test new Dummy device
     // {
     //     auto newChannel = container->Resolve<INtMediaChannels>()->addChannel();

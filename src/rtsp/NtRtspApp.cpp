@@ -5,7 +5,7 @@
 #include "DataPackets.h"
 
 // NtRtspApp::NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort, int timeout) : _dispatcher(dispatcher)
-NtRtspApp::NtRtspApp(const std::shared_ptr<CDispatcherBase> &dispatcher) : _dispatcher(dispatcher), rtspPort(554)
+NtRtspApp::NtRtspApp(const std::shared_ptr<Observer> &dispatcher) : _dispatcher(dispatcher), rtspPort(554)
 {
     scheduler = BasicTaskScheduler::createNew();
     env = NtUsageEnvironment::createNew(*scheduler);
@@ -19,14 +19,14 @@ NtRtspApp::NtRtspApp(const std::shared_ptr<CDispatcherBase> &dispatcher) : _disp
         return;
     }
 
-    _listener = std::make_shared<CListener>();
-    _listener->SetMessageFunc(std::bind(&NtRtspApp::OnMessage, this, std::placeholders::_1));
-    _dispatcher->Subscribe(_listener);
+    _listener = std::make_shared<DataProcessor>("rtspserver");
+    //_listener->SetMessageFunc(std::bind(&NtRtspApp::OnMessage, this, std::placeholders::_1));
+    _dispatcher->subscribe(_listener);
 }
 
 NtRtspApp::~NtRtspApp()
 {
-    _dispatcher->Unsubscribe(_listener->GetSubscriberId());
+    _dispatcher->unsubscribe(_listener);
 
     if (f_state_ == 1)
         return;
@@ -44,7 +44,7 @@ NtRtspApp::~NtRtspApp()
 void NtRtspApp::OnMessage(std::shared_ptr<PacketData> userdata)
 {
     // PacketData *value = static_cast<PacketData *>(userdata);
-    spdlog::info("OnMessage called, size: {} , from SubscriberId {}", userdata->size(), _listener->GetSubscriberId());
+    // spdlog::info("OnMessage called, size: {} , from SubscriberId {}", userdata->size(), _listener->GetSubscriberId());
     // delete value;
 }
 
