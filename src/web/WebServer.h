@@ -19,7 +19,7 @@ public:
 
 private:
     std::shared_ptr<Observer> _dispatcher;
-    std::shared_ptr<Listener> _listener;
-    void OnMessage(std::shared_ptr<PacketData> userdata);
+    std::shared_ptr<DataProcessor> _listener;
+    void OnMessage(std::shared_ptr<BasePacketData> userdata);
     int webPort = 8080;
 };

@@ -37,6 +37,7 @@ WebServer::WebServer(const std::shared_ptr<Observer> &dispatcher) : _dispatcher(
 
     _listener = std::make_shared<DataProcessor>("webserver");
     //_listener->onEvent()
+    _listener->setOnEventFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
     // _listener->SetMessageFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
     _dispatcher->subscribe(_listener);
 }
@@ -53,8 +54,8 @@ void WebServer::run()
     app().run();
 }
 
-void WebServer::OnMessage(std::shared_ptr<PacketData> userdata)
+void WebServer::OnMessage(std::shared_ptr<BasePacketData> userdata)
 {
     // int *value = static_cast<int *>(userdata);
-    // spdlog::info("OnMessage called, size: {} , from SubscriberId {}", userdata->size(), _listener->GetSubscriberId());
+    spdlog::info("OnMessage called, size: {} , from SubscriberId {}", userdata->size(), "webserver");
 }

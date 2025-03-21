@@ -105,7 +105,8 @@
         "hash_map": "cpp",
         "text_encoding": "cpp",
         "valarray": "cpp",
-        "*.inc": "cpp"
+        "*.inc": "cpp",
+        "hash_set": "cpp"
     },
     "search.useIgnoreFiles": false
 }

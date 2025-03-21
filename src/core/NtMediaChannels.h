@@ -36,6 +36,7 @@ struct NtChannel
     std::unordered_map<std::string, std::string> metadata{}; // метаданные канала
 };
 
+/*
 // Базовый интерфейс для управления каналами
 class INtMediaChannels
 {
@@ -80,3 +81,4 @@ private:
         }
     }
 };
+*/

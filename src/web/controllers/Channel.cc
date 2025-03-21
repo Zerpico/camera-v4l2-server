@@ -1,5 +1,5 @@
 #include "Channel.h"
-#include <NtMediaChannels.h>
+#include <NtChannelManager.h>
 #include "mioc/mioc.h"
 #include "utilities.hpp"
 
@@ -8,7 +8,7 @@ using namespace api;
 void Channel::getChannels(const HttpRequestPtr &req,
                           std::function<void(const HttpResponsePtr &)> &&callback) const
 {
-    auto mediaChannels = getContainer()->Resolve<INtMediaChannels>();
+    auto mediaChannels = getContainer()->Resolve<INtChannelManager>();
     auto channels = mediaChannels->getChannels();
 
     if (channels.empty())
@@ -43,7 +43,7 @@ void Channel::getChannels(const HttpRequestPtr &req,
 void Channel::newChannel(const HttpRequestPtr &req,
                          std::function<void(const HttpResponsePtr &)> &&callback) const
 {
-    auto mediaChannels = getContainer()->Resolve<INtMediaChannels>();
+    auto mediaChannels = getContainer()->Resolve<INtChannelManager>();
     auto newChannel = mediaChannels->addChannel();
     Json::Value ret;
     ret["channel_id"] = newChannel.id;
@@ -55,7 +55,7 @@ void Channel::getChannelInfo(const HttpRequestPtr &req,
                              std::function<void(const HttpResponsePtr &)> &&callback,
                              std::string channelId) const
 {
-    auto mediaChannels = getContainer()->Resolve<INtMediaChannels>();
+    auto mediaChannels = getContainer()->Resolve<INtChannelManager>();
     auto channels = mediaChannels->getChannels();
     auto result = std::find_if(begin(channels), end(channels), [&](const NtChannel &val)
                                { return val.id == channelId; });
@@ -87,7 +87,7 @@ void Channel::updateChannelInfo(const HttpRequestPtr &req,
         return;
     }
 
-    auto mediaChannels = getContainer()->Resolve<INtMediaChannels>();
+    auto mediaChannels = getContainer()->Resolve<INtChannelManager>();
     auto channels = mediaChannels->getChannels();
     auto result = std::find_if(begin(channels), end(channels), [&](const NtChannel &val)
                                { return val.id == channelId; });

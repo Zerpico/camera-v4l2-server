@@ -23,6 +23,7 @@ public:
     virtual ~Observer() = default;
     virtual void subscribe(std::shared_ptr<Listener> listener) = 0;
     virtual void unsubscribe(std::shared_ptr<Listener> listener) = 0;
+    virtual void publishEvent(const std::shared_ptr<BasePacketData> &event) = 0;
 };
 
 // Конкретный класс Subject (Observable) - Реализация Observer
@@ -78,13 +79,20 @@ class DataProcessor : public Listener
 public:
     DataProcessor(const std::string &name) : name(name) {}
 
+    void setOnEventFunc(std::function<void(std::shared_ptr<BasePacketData>)> handler)
+    {
+        _handler = handler;
+    }
+
     void onEvent(const std::shared_ptr<BasePacketData> &event) override
     {
-        std::cout << "Processor " << name << " received event: " << event->get_refId() << std::endl;
+        if (_handler != nullptr)
+            _handler(event);
     }
 
 private:
     std::string name;
+    std::function<void(const std::shared_ptr<BasePacketData>)> _handler = NULL;
 };
 
 // Пример "генератора" событий

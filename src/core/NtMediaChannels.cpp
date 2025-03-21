@@ -2,21 +2,9 @@
 #include <spdlog/spdlog.h>
 
 // Генератор уникальных ID
-std::string generateUniqueId()
-{
-    static std::random_device rd;
-    static std::mt19937 gen(rd());
-    static std::uniform_int_distribution<> distrib(0, 255);
 
-    std::stringstream ss;
-    for (int i = 0; i < 16; ++i)
-    {
-        ss << std::hex << std::setw(2) << std::setfill('0') << distrib(gen);
-    }
-    return ss.str();
-}
-
-NtMediaChannels::NtMediaChannels(/* args */)
+/*
+NtMediaChannels::NtMediaChannels()
 {
 }
 
@@ -73,3 +61,4 @@ const std::vector<NtChannel> NtMediaChannels::getChannels()
     std::lock_guard<std::mutex> lock(mutex);
     return channels; // Возвращаем копию
 }
+*/

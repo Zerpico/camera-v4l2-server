@@ -1,16 +1,17 @@
 #pragma once
-#include "NtDeviceInterface.h"
 #include <memory>
 #include <string>
-#include "NtDummyVideoDevice.h"
+#include "NtDeviceInterface.h"
+#include "NtMediaChannels.h"
+#include "INtFactoryDevice.h"
 
-class NtFactoryDevice
+class NtFactoryDevice : public INtFactoryDevice
 {
-private:
+public:
     NtFactoryDevice() = default;
     ~NtFactoryDevice() = default;
+    NtFactoryDevice(const NtFactoryDevice &) = delete;
 
 public:
-    static std::shared_ptr<NtDeviceInterface> createDummyDevice(const DummyVideoDeviceParameters &params);
-    // static std::shared_ptr<NtDeviceInterface> createFileDevice(std::string filePath);
+    std::shared_ptr<NtDeviceInterface> createNtDevice(const NtChannel &channel);
 };

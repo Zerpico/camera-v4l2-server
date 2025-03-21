@@ -1,4 +1,4 @@
-#pragma once
+/* #pragma once
 #include "NtMediaChannels.h"
 
 class IPipeline
@@ -9,7 +9,7 @@ class Pipeline : public IPipeline
 {
 
 public:
-    Pipeline(const std::shared_ptr<INtMediaChannels> &channels);
+    Pipeline(const std::shared_ptr<INtChannelManager> &channels);
     ~Pipeline();
     Pipeline(const Pipeline &) = delete;
 
@@ -24,3 +24,4 @@ private:
     std::mutex pipelineMutex;
     std::map<std::string, std::shared_ptr<NtDeviceInterface>> channelSources;
 };
+ */

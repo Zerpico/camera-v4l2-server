@@ -97,6 +97,6 @@ void NtDummyVideoDevice::runThread()
             std::this_thread::sleep_for(sleepMs);
 
         // send to bus
-        //_dispatcher->_dispatcher->SendMessageLP(data);
+        _dispatcher->publishEvent(data);
     }
 }

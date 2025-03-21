@@ -7,6 +7,7 @@
 
 #include <map>
 #include <memory>
+#include <typeinfo>
 
 MIOC_BEGIN
 
@@ -99,8 +100,9 @@ private:
     template <typename TService>
     static int _GetTypeId()
     {
-        static int typeId = _nextTypeId++;
-        return typeId;
+        return typeid(TService).hash_code();
+        // static int typeId = _nextTypeId++;
+        // return typeId;
     }
 
     // Low level registration.

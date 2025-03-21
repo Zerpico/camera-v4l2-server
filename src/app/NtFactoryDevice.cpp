@@ -1,7 +1,14 @@
 #include "NtFactoryDevice.h"
+#include "NtDummyVideoDevice.h"
 
-std::shared_ptr<NtDeviceInterface> NtFactoryDevice::createDummyDevice(const DummyVideoDeviceParameters &params)
+std::shared_ptr<NtDeviceInterface> NtFactoryDevice::createNtDevice(const NtChannel &channel)
 {
-    std::shared_ptr<NtDeviceInterface> device(new NtDummyVideoDevice(params));
-    return device;
+    if (channel.type == ChannelSourceType::Dummy)
+    {
+        auto metadata = channel.metadata;
+        auto deviceParam = DummyVideoDeviceParameters::Create(channel.id, metadata);
+        return std::make_shared<NtDummyVideoDevice>(deviceParam);
+    }
+    // ;
+    return NULL;
 }

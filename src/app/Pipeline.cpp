@@ -1,11 +1,11 @@
-#include "Pipeline.h"
+/* #include "Pipeline.h"
 #include <functional>
 #include <spdlog/spdlog.h>
 #include "NtDummyVideoDevice.h"
 #include "NtFactoryDevice.h"
 #include "utils.h"
 
-Pipeline::Pipeline(const std::shared_ptr<INtMediaChannels> &channels)
+Pipeline::Pipeline(const std::shared_ptr<INtChannelManager> &channels)
 {
     // channels->subscribe(std::bind(&Pipeline::onChangeChannel, this, std::placeholders::_1));
     //  callback = std::bind(&foo, "test", std::placeholders::_1, 3.f);
@@ -79,8 +79,8 @@ void Pipeline::updateChannel(NtChannel &channel)
 
     // Обновляем параметры канала
     auto device = channelSources[channel.id];
-    if (updateDevice(channel, device))
-        spdlog::info("Channel updated (id: {0})", channel.id);
+    auto res = updateDevice(channel, device);
+    spdlog::info("Channel updated (id: {0})", channel.id);
 }
 
 bool Pipeline::updateDevice(NtChannel &channel, std::shared_ptr<NtDeviceInterface> device)
@@ -104,4 +104,4 @@ bool Pipeline::updateDevice(NtChannel &channel, std::shared_ptr<NtDeviceInterfac
         spdlog::error("Unknown Channel type: {0}, on channel: {1}", static_cast<int>(channel.type), channel.id);
         return false;
     }
-}
+} */
