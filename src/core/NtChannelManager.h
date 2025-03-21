@@ -5,11 +5,11 @@
 #include "INtFactoryDevice.h"
 
 // Абстрактный класс для наблюдателей (observers)
-class ChannelObserver
+class IListenerChannel
 {
 public:
     virtual void onChannelEvent(const NtChannel &channel, ChannelEvent event) = 0;
-    virtual ~ChannelObserver() = default;
+    virtual ~IListenerChannel() = default;
 };
 
 // Базовый интерфейс для управления каналами
@@ -21,8 +21,7 @@ public:
     virtual bool removeChannel(const std::string &id) = 0;
 
     virtual const std::vector<NtChannel> getChannels() = 0;
-    // virtual void subscribe(std::function<void(ChannelEvent, NtChannel &)> callback) = 0;
-    virtual void subscribe(ChannelObserver *observer) = 0;
+    virtual void subscribe(std::shared_ptr<IListenerChannel> observer) = 0;
 };
 
 // Класс для управления каналами
@@ -37,14 +36,14 @@ public:
     bool removeChannel(const std::string &channelId);
 
     // Подписаться на события
-    void subscribe(ChannelObserver *observer)
+    void subscribe(std::shared_ptr<IListenerChannel> observer)
     {
         std::lock_guard<std::mutex> lock(observers_mutex_);
         observers_.push_back(observer);
     }
 
     // Отписаться от событий
-    void unsubscribe(ChannelObserver *observer)
+    void unsubscribe(std::shared_ptr<IListenerChannel> observer)
     {
         std::lock_guard<std::mutex> lock(observers_mutex_);
         observers_.erase(std::remove(observers_.begin(), observers_.end(), observer), observers_.end());
@@ -55,7 +54,7 @@ public:
 private:
     std::unordered_map<std::string, NtChannel> channels_;
     std::unordered_map<std::string, std::shared_ptr<NtDeviceInterface>> file_readers_;
-    std::vector<ChannelObserver *> observers_; // Observer list
+    std::vector<std::shared_ptr<IListenerChannel>> observers_; // Observer list
 
     std::mutex channels_mutex_;
     std::mutex file_readers_mutex_;

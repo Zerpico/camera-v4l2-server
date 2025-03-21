@@ -19,12 +19,12 @@ int main()
     container->AddSingleton<INtFactoryDevice, NtFactoryDevice>();
     container->AddSingleton<INtChannelManager, NtChannelManager, INtFactoryDevice>();
 
-    container->AddSingleton<Observer, EventSource>();
-    container->AddSingleton<IWebServer, WebServer, Observer>();
-    container->AddSingleton<INtRtspApp, NtRtspApp, Observer>();
+    container->AddSingleton<IObserverEvent, ObserverEventSource>();
+    container->AddSingleton<IWebServer, WebServer, IObserverEvent>();
+    container->AddSingleton<INtRtspApp, NtRtspApp, IObserverEvent, INtChannelManager>();
     set_external_avlogger(spdlog::default_logger());
 
-    auto disp = container->Resolve<Observer>();
+    auto disp = container->Resolve<IObserverEvent>();
 
     // just for test new Dummy device
     {

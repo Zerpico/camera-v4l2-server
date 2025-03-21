@@ -86,7 +86,7 @@ public:
     virtual bool update(void *userData);
 
 private:
-    std::shared_ptr<Observer> _dispatcher = NULL;
+    std::shared_ptr<IObserverEvent> _dispatcher = NULL;
     DummyVideoDeviceParameters m_params;
     std::shared_ptr<AVFrame> m_buffer_frame = NULL;
     size_t m_buffer_size = 0;

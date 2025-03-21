@@ -11,7 +11,7 @@ using namespace std::chrono;
 NtDummyVideoDevice::NtDummyVideoDevice(const DummyVideoDeviceParameters &params)
     : m_params(params)
 {
-    _dispatcher = getContainer()->Resolve<Observer>();
+    _dispatcher = getContainer()->Resolve<IObserverEvent>();
 
     // allocate avFrame and fill props and data
     m_buffer_frame = std::shared_ptr<AVFrame>(av_frame_alloc(), [](AVFrame *ptr)

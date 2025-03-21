@@ -1,5 +1,5 @@
 #include "NtChannelManager.h"
-// #include "NtFactoryDevice.h"
+#include "spdlog/spdlog.h"
 
 NtChannelManager::NtChannelManager(const std::shared_ptr<INtFactoryDevice> &deviceFactory) : _deviceFactory(deviceFactory)
 {
@@ -17,6 +17,7 @@ const NtChannel NtChannelManager::addChannel()
     channels_[newChannel.id] = newChannel;
 
     // Уведомляем наблюдателей
+    spdlog::info("Channel added (id: {0})", newChannel.id);
     notifyChannelEvent(newChannel, ChannelEvent::Added);
     return newChannel;
 }
@@ -45,6 +46,12 @@ bool NtChannelManager::updateChannel(const NtChannel &channel)
         {
             // Создаем для нового канала
             auto newDevice = _deviceFactory->createNtDevice(channel);
+            if (!newDevice)
+            {
+                spdlog::error("Unknown Channel type: {0}, on channel: {1}", static_cast<int>(channel.type), channel.id);
+                return false;
+            }
+
             file_readers_[channel.id] = newDevice;
 
             if (channel.enable)
@@ -53,12 +60,14 @@ bool NtChannelManager::updateChannel(const NtChannel &channel)
                 newDevice->stop();
         }
 
+        spdlog::info("Channel updated (id: {0})", channel.id);
         notifyChannelEvent(channel, ChannelEvent::Updated);
         channels_[channel.id] = channel; // Обновляем канал
         return true;
     }
 
     // handle missing channel
+    spdlog::error("Channel not found (id: {0})", channel.id);
     return false;
 }
 
@@ -75,12 +84,14 @@ bool NtChannelManager::removeChannel(const std::string &channelId)
         }
         else
         {
-            // handle missing channel, for example, log
+            // handle missing channel
+            spdlog::error("Channel not found (id: {0})", channel.id);
             return false;
         }
     }
 
     // Уведомляем наблюдателей
+    spdlog::info("Channel removed (id: {0})", channelId);
     notifyChannelEvent(channel, ChannelEvent::Removed);
     return true;
 }
@@ -89,7 +100,6 @@ const std::vector<NtChannel> NtChannelManager::getChannels()
 {
     std::lock_guard<std::mutex> lock(channels_mutex_);
     std::vector<NtChannel> chs;
-    // заполняем m как-то
 
     for (auto it = channels_.begin(); it != channels_.end(); ++it)
     {

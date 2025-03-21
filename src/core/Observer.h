@@ -9,37 +9,38 @@
 #include "DataPackets.h"
 
 // Интерфейс для наблюдателя (Listener) - получает уведомления
-class Listener
+class IListenerEvent
 {
 public:
-    virtual ~Listener() = default;
+    virtual ~IListenerEvent() = default;
     virtual void onEvent(const std::shared_ptr<BasePacketData> &event) = 0;
 };
 
-// Интерфейс для источника (Observer) - предоставляет события для прослушивания
-class Observer
+// Интерфейс для источника (IObserverEvent) - предоставляет события для прослушивания новых пакетов с источников INtDeviceInterface
+class IObserverEvent
 {
 public:
-    virtual ~Observer() = default;
-    virtual void subscribe(std::shared_ptr<Listener> listener) = 0;
-    virtual void unsubscribe(std::shared_ptr<Listener> listener) = 0;
+    virtual ~IObserverEvent() = default;
+    virtual void subscribe(std::shared_ptr<IListenerEvent> listener) = 0;
+    virtual void unsubscribe(std::shared_ptr<IListenerEvent> listener) = 0;
     virtual void publishEvent(const std::shared_ptr<BasePacketData> &event) = 0;
 };
 
-// Конкретный класс Subject (Observable) - Реализация Observer
-class EventSource : public Observer
+// Конкретный класс Subject (Observable) - Реализация IObserverEvent
+class ObserverEventSource : public IObserverEvent
 {
 public:
-    EventSource() {}
-    ~EventSource() {}
+    ObserverEventSource() {}
+    ~ObserverEventSource() {}
 
-    void subscribe(std::shared_ptr<Listener> listener) override
+    void subscribe(std::shared_ptr<IListenerEvent> listener) override
     {
         std::lock_guard<std::mutex> lock(listenersMutex);
-        listeners.push_back(listener);
+        if (listener)
+            listeners.push_back(listener);
     }
 
-    void unsubscribe(std::shared_ptr<Listener> listener) override
+    void unsubscribe(std::shared_ptr<IListenerEvent> listener) override
     {
         std::lock_guard<std::mutex> lock(listenersMutex);
         listeners.erase(std::remove(listeners.begin(), listeners.end(), listener), listeners.end());
@@ -47,7 +48,7 @@ public:
 
     void publishEvent(const std::shared_ptr<BasePacketData> &event)
     {
-        std::vector<std::shared_ptr<Listener>> currentListeners; // Copy for thread safety
+        std::vector<std::shared_ptr<IListenerEvent>> currentListeners; // Copy for thread safety
         {
             std::lock_guard<std::mutex> lock(listenersMutex);
             currentListeners = listeners;
@@ -68,16 +69,16 @@ public:
     }
 
 private:
-    std::vector<std::shared_ptr<Listener>> listeners;
+    std::vector<std::shared_ptr<IListenerEvent>> listeners;
     std::mutex listenersMutex;
     AsyncTaskQueue taskQueue;
 };
 
 // Пример конкретного Listener
-class DataProcessor : public Listener
+class ListenerEventProcessor : public IListenerEvent
 {
 public:
-    DataProcessor(const std::string &name) : name(name) {}
+    ListenerEventProcessor(const std::string &name) : name(name) {}
 
     void setOnEventFunc(std::function<void(std::shared_ptr<BasePacketData>)> handler)
     {
@@ -96,34 +97,34 @@ private:
 };
 
 // Пример "генератора" событий
-class EventGenerator
-{
-public:
-    EventGenerator(std::shared_ptr<EventSource> eventSource) : eventSource(eventSource), running(true) {}
+// class EventGenerator
+// {
+// public:
+//     EventGenerator(std::shared_ptr<ObserverEventSource> eventSource) : eventSource(eventSource), running(true) {}
 
-    ~EventGenerator()
-    {
-        running = false;
-        if (eventThread.joinable())
-        {
-            eventThread.join();
-        }
-    }
+//     ~EventGenerator()
+//     {
+//         running = false;
+//         if (eventThread.joinable())
+//         {
+//             eventThread.join();
+//         }
+//     }
 
-    void startGeneratingEvents()
-    {
-        eventThread = std::thread([this]()
-                                  {
-            int i = 0;
-            while (running) {
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
-                auto event = std::make_shared<PacketData>();                
-                eventSource->publishEvent(event);
-            } });
-    }
+//     void startGeneratingEvents()
+//     {
+//         eventThread = std::thread([this]()
+//                                   {
+//             int i = 0;
+//             while (running) {
+//                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
+//                 auto event = std::make_shared<PacketData>();
+//                 eventSource->publishEvent(event);
+//             } });
+//     }
 
-private:
-    std::shared_ptr<EventSource> eventSource;
-    std::atomic<bool> running;
-    std::thread eventThread;
-};
+// private:
+//     std::shared_ptr<ObserverEventSource> eventSource;
+//     std::atomic<bool> running;
+//     std::thread eventThread;
+// };

@@ -7,7 +7,7 @@
 
 using namespace drogon;
 
-WebServer::WebServer(const std::shared_ptr<Observer> &dispatcher) : _dispatcher(dispatcher), webPort(8080)
+WebServer::WebServer(const std::shared_ptr<IObserverEvent> &dispatcher) : _dispatcher(dispatcher), webPort(8080)
 {
     trantor::Logger::LogLevel logLevel = trantor::Logger::kInfo;
     app()
@@ -35,9 +35,9 @@ WebServer::WebServer(const std::shared_ptr<Observer> &dispatcher) : _dispatcher(
     spdlog::set_default_logger(logger);
     auto lev = logger->level();
 
-    _listener = std::make_shared<DataProcessor>("webserver");
+    _listener = std::make_shared<ListenerEventProcessor>("webserver");
     //_listener->onEvent()
-    _listener->setOnEventFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
+    //_listener->setOnEventFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
     // _listener->SetMessageFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
     _dispatcher->subscribe(_listener);
 }

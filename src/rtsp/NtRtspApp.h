@@ -6,6 +6,7 @@
 #include <StreamReplicator.hh>
 #include <list>
 #include "DataPackets.h"
+#include "NtChannelManager.h"
 
 class INtRtspApp
 {
@@ -19,7 +20,7 @@ class NtRtspApp : public INtRtspApp
 
 public:
     // NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort = 554, int timeout = 10);
-    NtRtspApp(const std::shared_ptr<Observer> &dispatcher);
+    NtRtspApp(const std::shared_ptr<IObserverEvent> &dispatcher, const std::shared_ptr<INtChannelManager> &channelManager);
     ~NtRtspApp();
     bool run();
     bool stop();
@@ -38,10 +39,32 @@ private:
     NtUsageEnvironment *env;
     NtRTSPServer *rtsp_server;
 
-    // CDispatcherBase *_dispatcher;
-    std::shared_ptr<Observer> _dispatcher;
-    std::shared_ptr<Listener> _listener;
-    void OnMessage(std::shared_ptr<PacketData> userdata);
+    std::shared_ptr<IObserverEvent> _dispatcher;
+    std::shared_ptr<INtChannelManager> _channelManager;
 
+    std::shared_ptr<IListenerEvent> _listenerEvent;
+    std::shared_ptr<IListenerChannel> _listenerChannel;
+    void OnMessage(std::shared_ptr<BasePacketData> userdata);
+    void OnChannel(const NtChannel &channel, ChannelEvent event);
     int rtspPort = 554;
+};
+
+class ObserverChannelSource : public IListenerChannel
+{
+public:
+    ObserverChannelSource() {}
+
+    void setOnChannelFunc(std::function<void(const NtChannel, ChannelEvent)> handler)
+    {
+        _handler = handler;
+    }
+
+    void onChannelEvent(const NtChannel &channel, ChannelEvent event)
+    {
+        if (_handler != nullptr)
+            _handler(channel, event);
+    }
+
+private:
+    std::function<void(const NtChannel &, ChannelEvent)> _handler = NULL;
 };

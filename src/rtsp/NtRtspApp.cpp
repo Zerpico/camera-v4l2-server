@@ -5,7 +5,9 @@
 #include "DataPackets.h"
 
 // NtRtspApp::NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort, int timeout) : _dispatcher(dispatcher)
-NtRtspApp::NtRtspApp(const std::shared_ptr<Observer> &dispatcher) : _dispatcher(dispatcher), rtspPort(554)
+NtRtspApp::NtRtspApp(const std::shared_ptr<IObserverEvent> &dispatcher,
+                     const std::shared_ptr<INtChannelManager> &channelManager) : _dispatcher(dispatcher),
+                                                                                 _channelManager(channelManager), rtspPort(554)
 {
     scheduler = BasicTaskScheduler::createNew();
     env = NtUsageEnvironment::createNew(*scheduler);
@@ -19,14 +21,22 @@ NtRtspApp::NtRtspApp(const std::shared_ptr<Observer> &dispatcher) : _dispatcher(
         return;
     }
 
-    _listener = std::make_shared<DataProcessor>("rtspserver");
-    //_listener->SetMessageFunc(std::bind(&NtRtspApp::OnMessage, this, std::placeholders::_1));
-    _dispatcher->subscribe(_listener);
+    // subscribe on update channels
+    auto listenerChannel = std::make_shared<ObserverChannelSource>();
+    listenerChannel->setOnChannelFunc(std::bind(&NtRtspApp::OnChannel, this, std::placeholders::_1, std::placeholders::_2));
+    _listenerChannel = listenerChannel;
+    _channelManager->subscribe(_listenerChannel);
+
+    // subscribe on new events
+    auto listenerEvent = std::make_shared<ListenerEventProcessor>("rtspserver");
+    listenerEvent->setOnEventFunc(std::bind(&NtRtspApp::OnMessage, this, std::placeholders::_1));
+    _listenerEvent = listenerEvent;
+    _dispatcher->subscribe(_listenerEvent);
 }
 
 NtRtspApp::~NtRtspApp()
 {
-    _dispatcher->unsubscribe(_listener);
+    _dispatcher->unsubscribe(_listenerEvent);
 
     if (f_state_ == 1)
         return;
@@ -41,11 +51,16 @@ NtRtspApp::~NtRtspApp()
     delete scheduler;
 }
 
-void NtRtspApp::OnMessage(std::shared_ptr<PacketData> userdata)
+void NtRtspApp::OnMessage(std::shared_ptr<BasePacketData> userdata)
 {
     // PacketData *value = static_cast<PacketData *>(userdata);
     // spdlog::info("OnMessage called, size: {} , from SubscriberId {}", userdata->size(), _listener->GetSubscriberId());
     // delete value;
+}
+
+void NtRtspApp::OnChannel(const NtChannel &channel, ChannelEvent event)
+{
+    spdlog::info("Channel update, id: {}", channel.id);
 }
 
 bool NtRtspApp::run()
