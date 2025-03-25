@@ -24,8 +24,14 @@ public:
     virtual void subscribe(std::shared_ptr<IListenerChannel> observer) = 0;
 };
 
+class IDeviceManager
+{
+public:
+    virtual const std::shared_ptr<NtDeviceInterface> getDevice(const std::string &id) = 0;
+};
+
 // Класс для управления каналами
-class NtChannelManager : public INtChannelManager
+class NtChannelManager : public INtChannelManager, public IDeviceManager
 {
 public:
     NtChannelManager(const std::shared_ptr<INtFactoryDevice> &deviceFactory);
@@ -51,13 +57,15 @@ public:
 
     const std::vector<NtChannel> getChannels();
 
+    const std::shared_ptr<NtDeviceInterface> getDevice(const std::string &id);
+
 private:
     std::unordered_map<std::string, NtChannel> channels_;
-    std::unordered_map<std::string, std::shared_ptr<NtDeviceInterface>> file_readers_;
+    std::unordered_map<std::string, std::shared_ptr<NtDeviceInterface>> device_readers_;
     std::vector<std::shared_ptr<IListenerChannel>> observers_; // Observer list
 
     std::mutex channels_mutex_;
-    std::mutex file_readers_mutex_;
+    std::mutex device_readers_mutex_;
     std::mutex observers_mutex_;
     std::shared_ptr<INtFactoryDevice> _deviceFactory;
 
@@ -76,5 +84,20 @@ private:
             ss << std::hex << std::setw(2) << std::setfill('0') << distrib(gen);
         }
         return ss.str();
+    }
+
+    int getNextChannelNumber()
+    {
+        if (channels_.empty())
+        {
+            return 0;
+        }
+
+        auto maxElement = std::max_element(
+            channels_.begin(), channels_.end(),
+            [](const auto &a, const auto &b)
+            { return a.second.number < b.second.number; });
+
+        return maxElement->second.number + 1;
     }
 };

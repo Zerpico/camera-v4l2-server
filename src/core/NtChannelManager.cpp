@@ -1,5 +1,7 @@
 #include "NtChannelManager.h"
 #include "spdlog/spdlog.h"
+#include <condition_variable>
+#include <future>
 
 NtChannelManager::NtChannelManager(const std::shared_ptr<INtFactoryDevice> &deviceFactory) : _deviceFactory(deviceFactory)
 {
@@ -14,6 +16,7 @@ const NtChannel NtChannelManager::addChannel()
     std::lock_guard<std::mutex> lock(channels_mutex_);
     NtChannel newChannel;
     newChannel.id = generateUniqueId();
+    newChannel.number = getNextChannelNumber();
     channels_[newChannel.id] = newChannel;
 
     // Уведомляем наблюдателей
@@ -31,33 +34,35 @@ bool NtChannelManager::updateChannel(const NtChannel &channel)
         NtChannel oldChannel = it->second;
 
         // Обновляем или создаем новый NtDeviceInterface
-        std::lock_guard<std::mutex> lock(file_readers_mutex_);
-        if (auto it = file_readers_.find(channel.id); it != file_readers_.end())
         {
-            auto device = it->second;
-            device->update((void *)&channel);
-
-            if (channel.enable)
-                device->start();
-            else
-                device->stop();
-        }
-        else
-        {
-            // Создаем для нового канала
-            auto newDevice = _deviceFactory->createNtDevice(channel);
-            if (!newDevice)
+            std::lock_guard<std::mutex> lock(device_readers_mutex_);
+            if (auto it = device_readers_.find(channel.id); it != device_readers_.end())
             {
-                spdlog::error("Unknown Channel type: {0}, on channel: {1}", static_cast<int>(channel.type), channel.id);
-                return false;
+                auto device = it->second;
+                device->update((void *)&channel);
+
+                if (channel.enable)
+                    device->start();
+                else
+                    device->stop();
             }
-
-            file_readers_[channel.id] = newDevice;
-
-            if (channel.enable)
-                newDevice->start();
             else
-                newDevice->stop();
+            {
+                // Создаем для нового канала
+                auto newDevice = _deviceFactory->createNtDevice(channel);
+                if (!newDevice)
+                {
+                    spdlog::error("Unknown Channel type: {0}, on channel: {1}", static_cast<int>(channel.type), channel.id);
+                    return false;
+                }
+
+                device_readers_[channel.id] = newDevice;
+
+                if (channel.enable)
+                    newDevice->start();
+                else
+                    newDevice->stop();
+            }
         }
 
         spdlog::info("Channel updated (id: {0})", channel.id);
@@ -108,11 +113,28 @@ const std::vector<NtChannel> NtChannelManager::getChannels()
     return chs; // Возвращаем копию
 }
 
+const std::shared_ptr<NtDeviceInterface> NtChannelManager::getDevice(const std::string &id)
+{
+    std::lock_guard<std::mutex> lock(device_readers_mutex_);
+    if (auto it = device_readers_.find(id); it != device_readers_.end())
+    {
+        return it->second;
+    }
+    return nullptr;
+};
+
 void NtChannelManager::notifyChannelEvent(const NtChannel &channel, ChannelEvent event)
 {
-    std::lock_guard<std::mutex> lock(observers_mutex_);
-    for (auto observer : observers_)
+    std::vector<std::shared_ptr<IListenerChannel>> observers_copy;
     {
-        observer->onChannelEvent(channel, event);
+        std::lock_guard<std::mutex> lock(observers_mutex_);
+        observers_copy = observers_; // Create a copy of the observers
+    }
+
+    // Asynchronously notify each observer
+    for (auto observer : observers_copy)
+    {
+        std::async(std::launch::async, [observer, channel, event]()
+                   { observer->onChannelEvent(channel, event); });
     }
 }

@@ -30,7 +30,8 @@ enum class ChannelSourceType
 struct NtChannel
 {
     bool enable = false;
-    std::string id;                                          // Уникальный ID канала
+    std::string id; // Уникальный ID канала
+    int number;
     std::string source;                                      // Путь к файлу
     ChannelSourceType type;                                  // Тип источника
     std::unordered_map<std::string, std::string> metadata{}; // метаданные канала

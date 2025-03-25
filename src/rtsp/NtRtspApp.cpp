@@ -6,11 +6,14 @@
 
 // NtRtspApp::NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort, int timeout) : _dispatcher(dispatcher)
 NtRtspApp::NtRtspApp(const std::shared_ptr<IObserverEvent> &dispatcher,
-                     const std::shared_ptr<INtChannelManager> &channelManager) : _dispatcher(dispatcher),
-                                                                                 _channelManager(channelManager), rtspPort(554)
+                     const std::shared_ptr<INtChannelManager> &channelManager,
+                     const std::shared_ptr<IDeviceManager> &deviceManager) : _dispatcher(dispatcher),
+                                                                             _channelManager(channelManager),
+                                                                             _deviceManager(deviceManager),
+                                                                             rtspPort(554)
 {
     scheduler = BasicTaskScheduler::createNew();
-    env = NtUsageEnvironment::createNew(*scheduler);
+    env = NtUsageEnvironment::createNew(*scheduler, spdlog::level::debug);
     UserAuthenticationDatabase *authDB = nullptr;
 
     rtsp_server = NtRTSPServer::createNew(*env, rtspPort, authDB);
@@ -60,7 +63,30 @@ void NtRtspApp::OnMessage(std::shared_ptr<BasePacketData> userdata)
 
 void NtRtspApp::OnChannel(const NtChannel &channel, ChannelEvent event)
 {
-    spdlog::info("Channel update, id: {}", channel.id);
+    if (event == ChannelEvent::Added)
+    {
+        auto number = std::format("{:02}", channel.number);
+        auto newSession = std::shared_ptr<ServerMediaSession>(ServerMediaSession::createNew(*env, number.c_str()), [](ServerMediaSession *se)
+                                                              { if (se) Medium::close(se); });
+        _sessions[channel.id] = newSession;
+    }
+
+    if (event == ChannelEvent::Updated)
+    {
+        auto session = _sessions[channel.id];
+        auto device = _deviceManager->getDevice(channel.id);
+        auto format = device->getVideoFormat();
+        if (channel.enable)
+        {
+            rtsp_server->addServerMediaSession(session.get());
+        }
+    }
+
+    if (event == ChannelEvent::Removed)
+    {
+        auto session = _sessions[channel.id];
+        rtsp_server->deleteServerMediaSession(session.get());
+    }
 }
 
 bool NtRtspApp::run()

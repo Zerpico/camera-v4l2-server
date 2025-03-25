@@ -41,13 +41,25 @@ char const *NtRTSPServer::allowedCommandNames()
 NtRTSPServer::NtClientConnection::NtClientConnection(RTSPServer &ourServer, int clientSocket, struct sockaddr_storage const &clientAddr)
     : RTSPServer::RTSPClientConnection(ourServer, clientSocket, clientAddr)
 {
-    envir() << "new client connected\n";
+    char hoststr[NI_MAXHOST];
+    char portstr[NI_MAXSERV];
+
+    int rc = getnameinfo((struct sockaddr *)&clientAddr, sizeof(struct sockaddr_storage), hoststr, sizeof(hoststr), portstr, sizeof(portstr),
+                         NI_NUMERICHOST | NI_NUMERICSERV);
+
+    envir() << "new client connected from " << hoststr << ":" << portstr << "\n";
     m_ClientSessionCount++;
 }
 
 NtRTSPServer::NtClientConnection::~NtClientConnection()
 {
-    envir() << "client disconnect\n";
+    char hoststr[NI_MAXHOST];
+    char portstr[NI_MAXSERV];
+
+    int rc = getnameinfo((struct sockaddr *)&this->fClientAddr, sizeof(struct sockaddr_storage), hoststr, sizeof(hoststr), portstr, sizeof(portstr),
+                         NI_NUMERICHOST | NI_NUMERICSERV);
+
+    envir() << "client disconnect from " << hoststr << ":" << portstr << "\n";
     m_ClientSessionCount--;
 }
 

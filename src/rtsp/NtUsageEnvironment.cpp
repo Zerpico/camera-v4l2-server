@@ -2,8 +2,8 @@
 // #include "Logger.h"
 #include "spdlog/spdlog.h"
 
-NtUsageEnvironment::NtUsageEnvironment(TaskScheduler &taskScheduler)
-    : BasicUsageEnvironment(taskScheduler)
+NtUsageEnvironment::NtUsageEnvironment(TaskScheduler &taskScheduler, spdlog::level::level_enum logLevel)
+    : BasicUsageEnvironment(taskScheduler), _logLevel(logLevel)
 {
 }
 
@@ -11,9 +11,9 @@ NtUsageEnvironment::~NtUsageEnvironment()
 {
 }
 
-NtUsageEnvironment *NtUsageEnvironment::createNew(TaskScheduler &taskScheduler)
+NtUsageEnvironment *NtUsageEnvironment::createNew(TaskScheduler &taskScheduler, spdlog::level::level_enum logLevel)
 {
-    NtUsageEnvironment *env = new NtUsageEnvironment(taskScheduler);
+    NtUsageEnvironment *env = new NtUsageEnvironment(taskScheduler, logLevel);
 
     if (env)
     {
@@ -51,7 +51,7 @@ UsageEnvironment &NtUsageEnvironment::operator<<(char const *str)
 void NtUsageEnvironment::flush()
 {
     *ptr = '\0';
-    spdlog::info(buffer);
+    spdlog::log(_logLevel, buffer);
     ptr = buffer;
 }
 

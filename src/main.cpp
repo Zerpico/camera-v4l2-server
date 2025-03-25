@@ -17,14 +17,16 @@ int main()
     auto container = getContainer();
 
     container->AddSingleton<INtFactoryDevice, NtFactoryDevice>();
-    container->AddSingleton<INtChannelManager, NtChannelManager, INtFactoryDevice>();
-
+    auto manager = std::make_shared<NtChannelManager>(std::make_shared<NtFactoryDevice>());
+    // container->AddSingleton<INtChannelManager, NtChannelManager, INtFactoryDevice>();
+    container->AddSingleton<INtChannelManager>(manager);
+    container->AddSingleton<IDeviceManager>(manager);
     container->AddSingleton<IObserverEvent, ObserverEventSource>();
     container->AddSingleton<IWebServer, WebServer, IObserverEvent>();
-    container->AddSingleton<INtRtspApp, NtRtspApp, IObserverEvent, INtChannelManager>();
-    set_external_avlogger(spdlog::default_logger());
+    container->AddSingleton<INtRtspApp, NtRtspApp, IObserverEvent, INtChannelManager, IDeviceManager>();
 
-    auto disp = container->Resolve<IObserverEvent>();
+    // spdlog::default_logger()->set_level(spdlog::level::debug);
+    set_external_avlogger(spdlog::default_logger());
 
     // just for test new Dummy device
     {
@@ -34,32 +36,12 @@ int main()
         auto isUpdate = container->Resolve<INtChannelManager>()->updateChannel(newChannel);
     }
     // {
-    //     auto newChannel = container->Resolve<INtMediaChannels>()->addChannel();
+    //     auto newChannel = container->Resolve<INtChannelManager>()->addChannel();
     //     newChannel.type = ChannelSourceType::Dummy;
     //     newChannel.enable = true;
     //     newChannel.metadata["width"] = "640";
-    //     auto isUpdate = container->Resolve<INtMediaChannels>()->updateChannel(newChannel);
+    //     auto isUpdate = container->Resolve<INtChannelManager>()->updateChannel(newChannel);
     // }
-
-    // Создаем EventSource (реализация Observer)
-    // auto eventSource = std::make_shared<EventSource>();
-
-    // // Создаем Listeners
-    // auto listener1 = std::make_shared<DataProcessor>("Processor 1");
-    // auto listener2 = std::make_shared<DataProcessor>("Processor 2");
-
-    // // Подписываем Listeners на EventSource
-    // eventSource->subscribe(listener1);
-    // eventSource->subscribe(listener2);
-
-    // // Создаем EventGenerator
-    // auto eventGenerator = std::make_shared<EventGenerator>(eventSource);
-
-    // // Запускаем генерацию событий
-    // eventGenerator->startGeneratingEvents();
-
-    // // Даем системе немного времени для работы
-    // std::this_thread::sleep_for(std::chrono::seconds(5));
 
     container->Resolve<INtRtspApp>()->run();
     container->Resolve<IWebServer>()->run();

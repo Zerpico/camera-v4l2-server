@@ -20,7 +20,7 @@ class NtRtspApp : public INtRtspApp
 
 public:
     // NtRtspApp(CDispatcherBase *dispatcher, unsigned short rtspPort = 554, int timeout = 10);
-    NtRtspApp(const std::shared_ptr<IObserverEvent> &dispatcher, const std::shared_ptr<INtChannelManager> &channelManager);
+    NtRtspApp(const std::shared_ptr<IObserverEvent> &dispatcher, const std::shared_ptr<INtChannelManager> &channelManager, const std::shared_ptr<IDeviceManager> &deviceManager);
     ~NtRtspApp();
     bool run();
     bool stop();
@@ -39,8 +39,11 @@ private:
     NtUsageEnvironment *env;
     NtRTSPServer *rtsp_server;
 
+    std::unordered_map<std::string, std::shared_ptr<ServerMediaSession>> _sessions;
+
     std::shared_ptr<IObserverEvent> _dispatcher;
     std::shared_ptr<INtChannelManager> _channelManager;
+    std::shared_ptr<IDeviceManager> _deviceManager;
 
     std::shared_ptr<IListenerEvent> _listenerEvent;
     std::shared_ptr<IListenerChannel> _listenerChannel;
