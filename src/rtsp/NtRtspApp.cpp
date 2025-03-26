@@ -13,7 +13,7 @@ NtRtspApp::NtRtspApp(const std::shared_ptr<IObserverEvent> &dispatcher,
                                                                              rtspPort(554)
 {
     scheduler = BasicTaskScheduler::createNew();
-    env = NtUsageEnvironment::createNew(*scheduler, spdlog::level::debug);
+    env = NtUsageEnvironment::createNew(*scheduler, spdlog::level::info);
     UserAuthenticationDatabase *authDB = nullptr;
 
     rtsp_server = NtRTSPServer::createNew(*env, rtspPort, authDB);
@@ -34,7 +34,7 @@ NtRtspApp::NtRtspApp(const std::shared_ptr<IObserverEvent> &dispatcher,
     auto listenerEvent = std::make_shared<ListenerEventProcessor>("rtspserver");
     listenerEvent->setOnEventFunc(std::bind(&NtRtspApp::OnMessage, this, std::placeholders::_1));
     _listenerEvent = listenerEvent;
-    _dispatcher->subscribe(_listenerEvent);
+    // _dispatcher->subscribe(_listenerEvent);
 }
 
 NtRtspApp::~NtRtspApp()
@@ -78,6 +78,8 @@ void NtRtspApp::OnChannel(const NtChannel &channel, ChannelEvent event)
         auto format = device->getVideoFormat();
         if (channel.enable)
         {
+            auto replicator = createStreamReplicator(env, device);
+            session->addSubsession(UnicastServerMediaSubsession::createNew(*env, replicator));
             rtsp_server->addServerMediaSession(session.get());
         }
     }
@@ -87,6 +89,22 @@ void NtRtspApp::OnChannel(const NtChannel &channel, ChannelEvent event)
         auto session = _sessions[channel.id];
         rtsp_server->deleteServerMediaSession(session.get());
     }
+}
+
+StreamReplicator *NtRtspApp::createStreamReplicator(UsageEnvironment *env, std::shared_ptr<NtDeviceInterface> devCapture)
+{
+    StreamReplicator *replicator = NULL;
+    FramedSource *framedSource = DeviceVideoSource::createNew(*env, _dispatcher, devCapture); // DeviceSourceFactory::createFramedSource(env, format, devCapture, queueSize, captureMode, outfd, repeatConfig);
+    if (framedSource != NULL)
+    {
+        // extend buffer size if needed
+        // if (devCapture->getBufferSize() > OutPacketBuffer::maxSize)
+        // {
+        //     OutPacketBuffer::maxSize = devCapture->getBufferSize();
+        // }
+        replicator = StreamReplicator::createNew(*env, framedSource, false);
+    }
+    return replicator;
 }
 
 bool NtRtspApp::run()

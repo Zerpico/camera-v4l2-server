@@ -14,10 +14,10 @@ FramedSource *UnicastServerMediaSubsession::createNewStreamSource(unsigned clien
 
 RTPSink *UnicastServerMediaSubsession::createNewRTPSink(Groupsock *rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, FramedSource *inputSource)
 {
-    return createSink(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic, m_format, dynamic_cast<NtDeviceInterface *>(m_replicator->inputSource()));
+    return createSink(envir(), rtpGroupsock, rtpPayloadTypeIfDynamic, m_format, dynamic_cast<DeviceVideoSource *>(m_replicator->inputSource()));
 }
 
 char const *UnicastServerMediaSubsession::getAuxSDPLine(RTPSink *rtpSink, FramedSource *inputSource)
 {
-    return this->getAuxLine(dynamic_cast<NtDeviceInterface *>(m_replicator->inputSource()), rtpSink);
+    return this->getAuxLine(dynamic_cast<DeviceVideoSource *>(m_replicator->inputSource()), rtpSink);
 }

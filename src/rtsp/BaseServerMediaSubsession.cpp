@@ -28,7 +28,7 @@ FramedSource *BaseServerMediaSubsession::createSource(UsageEnvironment &env, Fra
     return source;
 }
 
-RTPSink *BaseServerMediaSubsession::createSink(UsageEnvironment &env, Groupsock *rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, const std::string &format, NtDeviceInterface *source)
+RTPSink *BaseServerMediaSubsession::createSink(UsageEnvironment &env, Groupsock *rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, const std::string &format, DeviceVideoSource *source)
 {
     RTPSink *videoSink = NULL;
     if (format == "video/MP2T")
@@ -75,7 +75,7 @@ RTPSink *BaseServerMediaSubsession::createSink(UsageEnvironment &env, Groupsock 
     return videoSink;
 }
 
-char const *BaseServerMediaSubsession::getAuxLine(NtDeviceInterface *source, RTPSink *rtpSink)
+char const *BaseServerMediaSubsession::getAuxLine(DeviceVideoSource *source, RTPSink *rtpSink)
 {
     const char *auxLine = NULL;
     if (rtpSink)
@@ -87,11 +87,12 @@ char const *BaseServerMediaSubsession::getAuxLine(NtDeviceInterface *source, RTP
         }
         else if (source)
         {
+            auto device = source->getDevice();
             unsigned char rtpPayloadType = rtpSink->rtpPayloadType();
-            //DeviceInterface *device = source->getDevice();
-            //os << "a=fmtp:" << int(rtpPayloadType) << " " << source->getAuxLine() << "\r\n";
-            int width = source->getWidth();
-            int height = source->getHeight();
+            // DeviceInterface *device = source->getDevice();
+            // os << "a=fmtp:" << int(rtpPayloadType) << " " << source->getAuxLine() << "\r\n";
+            int width = device->getWidth();
+            int height = device->getHeight();
             if ((width > 0) && (height > 0))
             {
                 os << "a=x-dimensions:" << width << "," << height << "\r\n";

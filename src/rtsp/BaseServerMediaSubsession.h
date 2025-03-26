@@ -2,6 +2,7 @@
 
 #include <liveMedia.hh>
 #include "NtDeviceInterface.h"
+#include "DeviceVideoSource.h"
 #include <string>
 #include <sstream>
 
@@ -10,16 +11,17 @@ class BaseServerMediaSubsession
 public:
     BaseServerMediaSubsession(StreamReplicator *replicator) : m_replicator(replicator)
     {
-        NtDeviceInterface *deviceSource = dynamic_cast<NtDeviceInterface *>(replicator->inputSource());
+        DeviceVideoSource *deviceSource = dynamic_cast<DeviceVideoSource *>(replicator->inputSource());
         if (deviceSource)
         {
-            if (deviceSource->getVideoFormat() > NtDeviceFormat::FMT_NONE)
+            auto device = deviceSource->getDevice();
+            if (device->getVideoFormat() > NtDeviceFormat::FMT_NONE)
             {
-                m_format = BaseServerMediaSubsession::getVideoRtpFormat(deviceSource->getVideoFormat());
+                m_format = BaseServerMediaSubsession::getVideoRtpFormat(device->getVideoFormat());
             }
             else
             {
-                m_format = BaseServerMediaSubsession::getAudioRtpFormat(deviceSource->getAudioFormat(), deviceSource->getSampleRate(), deviceSource->getChannels());
+                m_format = BaseServerMediaSubsession::getAudioRtpFormat(device->getAudioFormat(), device->getSampleRate(), device->getChannels());
             }
             replicator->envir() << "RTP format:" << m_format.c_str();
         }
@@ -82,8 +84,8 @@ public:
 
 public:
     static FramedSource *createSource(UsageEnvironment &env, FramedSource *videoES, const std::string &format);
-    static RTPSink *createSink(UsageEnvironment &env, Groupsock *rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, const std::string &format, NtDeviceInterface *source);
-    char const *getAuxLine(NtDeviceInterface *source, RTPSink *rtpSink);
+    static RTPSink *createSink(UsageEnvironment &env, Groupsock *rtpGroupsock, unsigned char rtpPayloadTypeIfDynamic, const std::string &format, DeviceVideoSource *source);
+    char const *getAuxLine(DeviceVideoSource *source, RTPSink *rtpSink);
 
 protected:
     StreamReplicator *m_replicator;

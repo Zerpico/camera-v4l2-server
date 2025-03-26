@@ -7,6 +7,7 @@
 #include <list>
 #include "DataPackets.h"
 #include "NtChannelManager.h"
+#include "DeviceVideoSource.h"
 
 class INtRtspApp
 {
@@ -30,6 +31,7 @@ public:
 
 private:
     void runThread();
+    StreamReplicator *createStreamReplicator(UsageEnvironment *env, std::shared_ptr<NtDeviceInterface> devCapture);
 
 private:
     std::atomic_char f_state_{1};
