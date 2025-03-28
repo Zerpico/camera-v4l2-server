@@ -74,8 +74,12 @@ NtVideoEncoder::~NtVideoEncoder()
 {
 }
 
-void NtVideoEncoder::Push(const AVFrame *frame)
+void NtVideoEncoder::Push(AVFrame *frame)
 {
+
+    _calcTimestamp += av_rescale_q(1, _codecCtx->time_base, _codecCtx->time_base);
+    frame->pts = _calcTimestamp;
+
     int ret = avcodec_send_frame(_codecCtx.get(), frame);
     ret = avcodec_receive_packet(_codecCtx.get(), _outPacket.get());
 }

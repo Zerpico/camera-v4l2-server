@@ -35,10 +35,12 @@ WebServer::WebServer(const std::shared_ptr<IObserverEvent> &dispatcher) : _dispa
     spdlog::set_default_logger(logger);
     auto lev = logger->level();
 
-    _listener = std::make_shared<ListenerEventProcessor>("webserver");
+    auto listener = std::make_shared<ListenerEventProcessor>("webserver");
     //_listener->onEvent()
-    //_listener->setOnEventFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
+    listener->setOnEventFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
+   // _listener->setOnEventFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
     // _listener->SetMessageFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
+    _listener = listener;
     _dispatcher->subscribe(_listener);
 }
 

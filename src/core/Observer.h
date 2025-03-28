@@ -7,11 +7,13 @@
 #include <functional>
 #include "AsyncTaskQueue.h"
 #include "DataPackets.h"
+#include "string"
 
 // Интерфейс для наблюдателя (Listener) - получает уведомления
 class IListenerEvent
 {
 public:
+    virtual const std::string getRefId() const = 0;
     virtual ~IListenerEvent() = default;
     virtual void onEvent(const std::shared_ptr<BasePacketData> &event) = 0;
 };
@@ -56,8 +58,10 @@ public:
 
         for (const auto &listener : currentListeners)
         {
-            taskQueue.enqueue([listener, event]()
-                              {
+            if (listener->getRefId() == event->get_refId())
+            {
+                taskQueue.enqueue([listener, event]()
+                                  {
                 try {
                     listener->onEvent(event);
                 } catch (const std::exception& e) {
@@ -65,6 +69,7 @@ public:
                 } catch (...) {
                     std::cerr << "Unknown exception in listener" << std::endl;
                 } });
+            }
         }
     }
 
@@ -79,6 +84,11 @@ class ListenerEventProcessor : public IListenerEvent
 {
 public:
     ListenerEventProcessor(const std::string &name) : name(name) {}
+
+    const std::string getRefId() const
+    {
+        return name;
+    }
 
     void setOnEventFunc(std::function<void(std::shared_ptr<BasePacketData>)> handler)
     {
@@ -95,36 +105,3 @@ private:
     std::string name;
     std::function<void(const std::shared_ptr<BasePacketData>)> _handler = NULL;
 };
-
-// Пример "генератора" событий
-// class EventGenerator
-// {
-// public:
-//     EventGenerator(std::shared_ptr<ObserverEventSource> eventSource) : eventSource(eventSource), running(true) {}
-
-//     ~EventGenerator()
-//     {
-//         running = false;
-//         if (eventThread.joinable())
-//         {
-//             eventThread.join();
-//         }
-//     }
-
-//     void startGeneratingEvents()
-//     {
-//         eventThread = std::thread([this]()
-//                                   {
-//             int i = 0;
-//             while (running) {
-//                 std::this_thread::sleep_for(std::chrono::milliseconds(500));
-//                 auto event = std::make_shared<PacketData>();
-//                 eventSource->publishEvent(event);
-//             } });
-//     }
-
-// private:
-//     std::shared_ptr<ObserverEventSource> eventSource;
-//     std::atomic<bool> running;
-//     std::thread eventThread;
-// };

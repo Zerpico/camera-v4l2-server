@@ -52,6 +52,18 @@ private:
     void OnMessage(std::shared_ptr<BasePacketData> userdata);
     void OnChannel(const NtChannel &channel, ChannelEvent event);
     int rtspPort = 554;
+
+    std::string getRtspUrl(ServerMediaSession *sms)
+    {
+        std::string url;
+        char *rtspurl = rtsp_server->rtspURL(sms);
+        if (rtspurl != NULL)
+        {
+            url = rtspurl;
+            delete[] rtspurl;
+        }
+        return url;
+    }
 };
 
 class ObserverChannelSource : public IListenerChannel

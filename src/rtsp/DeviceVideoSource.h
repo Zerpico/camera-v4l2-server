@@ -3,6 +3,8 @@
 #include "NtDeviceInterface.h"
 #include <thread>
 #include <Observer.h>
+#include "ThreadsafeQueue.h"
+#include "DataPackets.h"
 
 class DeviceVideoSource : public FramedSource
 {
@@ -25,6 +27,7 @@ public:
 
 private:
     void OnMessage(std::shared_ptr<BasePacketData> userdata);
+    void RunThread();
 
 private:
     EventTriggerId m_eventTriggerId;
@@ -33,12 +36,16 @@ private:
     timeval currentTime;
     const std::shared_ptr<IObserverEvent> _dispatcher;
     const std::shared_ptr<NtDeviceInterface> _device;
+    // std::shared_ptr<NalParser> _nalParser;
     std::shared_ptr<IListenerEvent> _listenerEvent;
     int mStop = 1;
+    bool mm = false;
     std::thread thread_capture{};
     // NoThrowMutex *queue_mutex;
     std::string m_sps;
     std::string m_pps;
     std::string m_auxLine;
     bool m_keepMarker;
+    ThreadsafeQueue<std::shared_ptr<PacketData>> *_packetQueue;
+    std::queue<std::shared_ptr<PacketData>> *_packetQueue2;
 };

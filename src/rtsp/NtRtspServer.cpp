@@ -7,6 +7,7 @@
 #include <cstdio>
 #include <time.h>
 #include <ByteStreamMemoryBufferSource.hh>
+#include "spdlog/spdlog.h"
 
 u_int32_t NtRTSPServer::NtClientConnection::m_ClientSessionCount = 0;
 
@@ -47,7 +48,8 @@ NtRTSPServer::NtClientConnection::NtClientConnection(RTSPServer &ourServer, int 
     int rc = getnameinfo((struct sockaddr *)&clientAddr, sizeof(struct sockaddr_storage), hoststr, sizeof(hoststr), portstr, sizeof(portstr),
                          NI_NUMERICHOST | NI_NUMERICSERV);
 
-    envir() << "new client connected from " << hoststr << ":" << portstr << "\n";
+    spdlog::info("new client connected from {}:{}", hoststr, portstr);
+    // envir() << "new client connected from " << hoststr << ":" << portstr << "\n";
     m_ClientSessionCount++;
 }
 
@@ -59,7 +61,8 @@ NtRTSPServer::NtClientConnection::~NtClientConnection()
     int rc = getnameinfo((struct sockaddr *)&this->fClientAddr, sizeof(struct sockaddr_storage), hoststr, sizeof(hoststr), portstr, sizeof(portstr),
                          NI_NUMERICHOST | NI_NUMERICSERV);
 
-    envir() << "client disconnect from " << hoststr << ":" << portstr << "\n";
+    spdlog::info("client disconnect from {}:{}", hoststr, portstr);
+    // envir() << "client disconnect from " << hoststr << ":" << portstr << "\n";
     m_ClientSessionCount--;
 }
 

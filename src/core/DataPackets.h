@@ -8,32 +8,6 @@
 
 #define MEM_ALIGN 64
 
-// enum class CodecType
-// {
-//     NONE,
-//     H264,
-//     H265,
-//     MPEG2,
-//     MPEG4,
-//     MJPEG,
-//     VP8,
-//     VP9
-// };
-
-// struct AVFrame
-// {
-//     explicit AVFrame(const size_t size = 0)
-//         : buffer(new uint8_t[size], std::default_delete<uint8_t[]>()),
-//           size(size),
-//           timestamp(0)
-//     {
-//     }
-
-//     std::shared_ptr<uint8_t> buffer;
-//     size_t size;
-//     uint32_t timestamp;
-// };
-
 /**
  Safe structure for storing data pointer and operations on them (clear, resize, copy, swap)
  */
@@ -169,7 +143,7 @@ private:
  */
 struct PacketData : BasePacketData
 {
-    PacketData(NtDeviceFormat format = NtDeviceFormat::FMT_NONE, const int sizeFrame = 0) : BasePacketData()
+    PacketData(NtDeviceFormat format = NtDeviceFormat::FMT_NONE, const int sizeFrame = 0) : BasePacketData(), m_format(format)
     {
         resize(sizeFrame);
     }
@@ -189,6 +163,8 @@ struct PacketData : BasePacketData
     {
         std::swap(m_DataPtr, sw_data.m_DataPtr);
         std::swap(m_sizePtr, sw_data.m_sizePtr);
+        std::swap(m_format, sw_data.m_format);
+        std::swap(m_refId, sw_data.m_refId);
     }
 
 private:

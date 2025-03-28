@@ -25,7 +25,7 @@ struct DummyVideoDeviceParameters
 {
 public:
     DummyVideoDeviceParameters(std::string id, const int width = 640, const int height = 480, const double fps = 25.0, const char *title_text = NULL, const bool add_timer = false)
-        : m_id("dummy_video"), m_width(width), m_height(height), m_fps(fps)
+        : m_id(id), m_width(width), m_height(height), m_fps(fps)
     {
         if (title_text)
             m_title = title_text;
@@ -79,7 +79,7 @@ public:
     virtual int getHeight() { return m_encoder->getHeight(); }
     virtual NtDeviceFormat getVideoFormat() { return (NtDeviceFormat)m_encoder->getVideoFormat(); }
 
-    inline void fill_frame(AVFrame &frame, uint8_t *dst);
+    inline void fill_frame(AVFrame *frame, uint8_t *dst, int frame_index);
 
     virtual void start();
     virtual void stop();
@@ -94,6 +94,7 @@ private:
     std::thread thread_capture{};
     void runThread();
     int mStop = 1;
+    int frame_index = 0;
 
     const uint8_t bar_colours[8][3] =
         {
@@ -106,6 +107,14 @@ private:
             {0, 0, 255},     // Blue
             {0, 0, 0},       // Black
         };
+
+    // Функция преобразования RGB в YUV (Rec.601)
+    void RGBtoYUV(int R, int G, int B, uint8_t &Y, uint8_t &U, uint8_t &V)
+    {
+        Y = static_cast<uint8_t>(0.299 * R + 0.587 * G + 0.114 * B);
+        U = static_cast<uint8_t>(-0.169 * R - 0.331 * G + 0.5 * B + 128);
+        V = static_cast<uint8_t>(0.5 * R - 0.419 * G - 0.081 * B + 128);
+    }
 
     std::shared_ptr<NtVideoEncoder> m_encoder = NULL;
     long _fd = -1;

@@ -13,7 +13,7 @@ NtRtspApp::NtRtspApp(const std::shared_ptr<IObserverEvent> &dispatcher,
                                                                              rtspPort(554)
 {
     scheduler = BasicTaskScheduler::createNew();
-    env = NtUsageEnvironment::createNew(*scheduler, spdlog::level::info);
+    env = NtUsageEnvironment::createNew(*scheduler, spdlog::level::debug);
     UserAuthenticationDatabase *authDB = nullptr;
 
     rtsp_server = NtRTSPServer::createNew(*env, rtspPort, authDB);
@@ -23,6 +23,8 @@ NtRtspApp::NtRtspApp(const std::shared_ptr<IObserverEvent> &dispatcher,
         spdlog::error("Failed to create rtsp server ::%s", env->getResultMsg());
         return;
     }
+
+    OutPacketBuffer::increaseMaxSizeTo(6242880); // 1M
 
     // subscribe on update channels
     auto listenerChannel = std::make_shared<ObserverChannelSource>();
@@ -66,7 +68,7 @@ void NtRtspApp::OnChannel(const NtChannel &channel, ChannelEvent event)
     if (event == ChannelEvent::Added)
     {
         auto number = std::format("{:02}", channel.number);
-        auto newSession = std::shared_ptr<ServerMediaSession>(ServerMediaSession::createNew(*env, number.c_str()), [](ServerMediaSession *se)
+        auto newSession = std::shared_ptr<ServerMediaSession>(ServerMediaSession::createNew(*env, number.c_str(), "LolKek_4eburek_RTSP", "LolKek_4eburek_RTSP"), [](ServerMediaSession *se)
                                                               { if (se) Medium::close(se); });
         _sessions[channel.id] = newSession;
     }
@@ -81,6 +83,7 @@ void NtRtspApp::OnChannel(const NtChannel &channel, ChannelEvent event)
             auto replicator = createStreamReplicator(env, device);
             session->addSubsession(UnicastServerMediaSubsession::createNew(*env, replicator));
             rtsp_server->addServerMediaSession(session.get());
+            spdlog::info("start stream on {}", getRtspUrl(session.get()));
         }
     }
 
