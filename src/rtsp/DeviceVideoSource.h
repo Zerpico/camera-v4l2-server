@@ -46,6 +46,5 @@ private:
     std::string m_pps;
     std::string m_auxLine;
     bool m_keepMarker;
-    ThreadsafeQueue<std::shared_ptr<PacketData>> *_packetQueue;
-    std::queue<std::shared_ptr<PacketData>> *_packetQueue2;
+    std::queue<std::shared_ptr<PacketData>> *_packetQueue;
 };

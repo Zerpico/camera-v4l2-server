@@ -5,6 +5,7 @@
 #include <string>
 #include <iostream>
 #include "NtDeviceFormat.h"
+#include <atomic>
 
 #define MEM_ALIGN 64
 
@@ -43,7 +44,12 @@ struct BasePacketData
     /* get size data */
     int size(void) const { return m_sizePtr; }
     /* get pointer on data */
-    uint8_t *data(void) const { return m_DataPtr; }
+    uint8_t *data(void)
+    {
+        // m_ref.fetch_sub(1, std::memory_order_relaxed);
+        m_ref--;
+        return m_DataPtr;
+    }
 
     virtual void copy(const uint8_t *buff, const int &sz)
     {
@@ -60,12 +66,25 @@ struct BasePacketData
 
     std::string get_refId(void) const { return m_refId; };
     void set_refId(std::string id) { m_refId = id; };
+    void refIncrement()
+    {
+        // std::lock_guard<std::mutex> lock(refMutex);
+        m_ref++;
+    }
+
+    bool contRef()
+    {
+        if (m_DataPtr == nullptr)
+            return false;
+        return m_ref.load(std::memory_order_relaxed) > 0;
+    }
 
 protected:
     BasePacketData() : m_DataPtr(nullptr) {};
     int m_sizePtr = 0;
     uint8_t *m_DataPtr = nullptr;
     std::string m_refId{};
+    std::atomic<int> m_ref = 0;
 };
 
 /**

@@ -143,6 +143,22 @@ int main(int argc, char **argv)
     if (generateChannels(container, args) != 0)
         exit(1);
 
+    {
+        auto newChannel = container->Resolve<INtChannelManager>()->addChannel();
+        newChannel.type = ChannelSourceType::File;
+        newChannel.enable = true;
+        newChannel.source = "E:\\testVideo\\shapes\\cut_files\\yellowobjects.mkv";
+        auto isUpdate = container->Resolve<INtChannelManager>()->updateChannel(newChannel);
+    }
+    {
+        auto newChannel = container->Resolve<INtChannelManager>()->addChannel();
+        newChannel.type = ChannelSourceType::File;
+        newChannel.enable = true;
+        newChannel.source = "E:\\testVideo\\shapes\\cut_files\\circleobjects.mkv";
+        ;
+        auto isUpdate = container->Resolve<INtChannelManager>()->updateChannel(newChannel);
+    }
+
     // start service and loop
     container->Resolve<INtRtspApp>()->run();
     container->Resolve<IWebServer>()->run();

@@ -9,8 +9,7 @@ DeviceVideoSource *DeviceVideoSource::createNew(UsageEnvironment &env, const std
 DeviceVideoSource::DeviceVideoSource(UsageEnvironment &env, const std::shared_ptr<IObserverEvent> dispatcher, const std::shared_ptr<NtDeviceInterface> device)
     : FramedSource(env), _dispatcher(dispatcher), _device(device)
 {
-    _packetQueue = new ThreadsafeQueue<std::shared_ptr<PacketData>>();
-    _packetQueue2 = new std::queue<std::shared_ptr<PacketData>>();
+    _packetQueue = new std::queue<std::shared_ptr<PacketData>>();
     // subscribe on new events
     auto listenerEvent = std::make_shared<ListenerEventProcessor>(device->getFd());
     listenerEvent->setOnEventFunc(std::bind(&DeviceVideoSource::OnMessage, this, std::placeholders::_1));
@@ -18,19 +17,19 @@ DeviceVideoSource::DeviceVideoSource(UsageEnvironment &env, const std::shared_pt
     _dispatcher->subscribe(_listenerEvent);
 
     m_eventTriggerId = envir().taskScheduler().createEventTrigger(DeviceVideoSource::deliverFrameStub);
-    thread_capture = std::thread(&DeviceVideoSource::RunThread, this);
+    // thread_capture = std::thread(&DeviceVideoSource::RunThread, this);
 }
 
 DeviceVideoSource::~DeviceVideoSource()
 {
-    mStop = 0;
-    if (thread_capture.joinable())
-        thread_capture.join();
+    // mStop = 0;
+    // if (thread_capture.joinable())
+    //     thread_capture.join();
 
-    while (!_packetQueue2->empty())
-        _packetQueue2->pop();
+    while (!_packetQueue->empty())
+        _packetQueue->pop();
 
-    delete _packetQueue2;
+    delete _packetQueue;
 
     envir().taskScheduler().deleteEventTrigger(m_eventTriggerId);
     // pthread_join(m_thid, NULL);
@@ -41,7 +40,7 @@ DeviceVideoSource::~DeviceVideoSource()
 void DeviceVideoSource::RunThread()
 {
     // http://git.vipaks.local/domination/backend/3d-camera/-/blob/feature/work_with_rtspFix/OpenRtsp/OpenRtspLib/Sources/DummyDeviceFramedSource.h
-    mStop = 1;
+    // mStop = 1;
     // while (mStop)
     // {
     //     std::shared_ptr<PacketData> packet;
@@ -61,11 +60,18 @@ void DeviceVideoSource::OnMessage(std::shared_ptr<BasePacketData> userdata)
 {
 
     auto format = static_cast<PacketData *>(userdata.get())->get_format();
+
     auto newPacket = std::make_shared<PacketData>(format);
     newPacket->copy(userdata->data(), userdata->size());
 
     // _packetQueue->push(newPacket);
-    _packetQueue2->push(newPacket);
+    _packetQueue->push(newPacket);
+
+    while (_packetQueue->size() >= 10)
+    {
+        _packetQueue->front().reset();
+        _packetQueue->pop();
+    }
     envir().taskScheduler().triggerEvent(m_eventTriggerId, this);
 }
 
@@ -79,16 +85,13 @@ void DeviceVideoSource::deliverFrame()
     if (!isCurrentlyAwaitingData())
         return;
 
-    auto packet = _packetQueue2->front();
-    _packetQueue2->pop();
+    // while (_packetQueue->size() >= 10)
+    // {
+    //     _packetQueue->pop();
+    // }
 
-    // if (_packetQueue2->size() > 50)
-    //     spdlog::warn("_packetQueue2 is greaten {}", _packetQueue2->size());
-
-    while (_packetQueue2->size() >= 10)
-    {
-        _packetQueue2->pop();
-    }
+    auto packet = _packetQueue->front();
+    _packetQueue->pop();
 
     fFrameSize = packet->size();
     u_int8_t *newFrameDataStart = packet->data();

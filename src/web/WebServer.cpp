@@ -38,10 +38,10 @@ WebServer::WebServer(const std::shared_ptr<IObserverEvent> &dispatcher) : _dispa
     auto listener = std::make_shared<ListenerEventProcessor>("webserver");
     //_listener->onEvent()
     listener->setOnEventFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
-   // _listener->setOnEventFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
+    // _listener->setOnEventFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
     // _listener->SetMessageFunc(std::bind(&WebServer::OnMessage, this, std::placeholders::_1));
     _listener = listener;
-    _dispatcher->subscribe(_listener);
+    // _dispatcher->subscribe(_listener);
 }
 
 WebServer::~WebServer()
