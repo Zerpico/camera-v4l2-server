@@ -12,6 +12,8 @@
 #include "NtFactoryDevice.h"
 #include "NtChannelManager.h"
 #include <fstream>
+#include <filesystem>
+#include <codecvt>
 
 // Function to display usage information
 void printUsage()
@@ -80,6 +82,12 @@ bool fileExists(const std::string &filename)
     return file.good(); // Check if the file can be opened successfully
 }
 
+static std::string convertFromUtf(std::wstring str)
+{
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    return converter.to_bytes(str);
+}
+
 // Function to register all parsed channels in ChannelManager
 int generateChannels(mioc::ServiceContainerPtr container, std::unordered_map<std::string, std::vector<std::string>> args)
 {
@@ -93,10 +101,11 @@ int generateChannels(mioc::ServiceContainerPtr container, std::unordered_map<std
             if (fileExists(filename))
             {
                 // Use the filename
+                std::filesystem::path file_path(filename);
                 auto newChannel = container->Resolve<INtChannelManager>()->addChannel();
                 newChannel.type = ChannelSourceType::File;
                 newChannel.enable = true;
-                newChannel.source = filename;
+                newChannel.source = convertFromUtf(file_path.native().c_str());
                 auto isUpdate = container->Resolve<INtChannelManager>()->updateChannel(newChannel);
             }
             else
@@ -143,23 +152,7 @@ int main(int argc, char **argv)
     if (generateChannels(container, args) != 0)
         exit(1);
 
-    {
-        auto newChannel = container->Resolve<INtChannelManager>()->addChannel();
-        newChannel.type = ChannelSourceType::File;
-        newChannel.enable = true;
-        newChannel.source = "E:\\testVideo\\shapes\\cut_files\\yellowobjects.mkv";
-        auto isUpdate = container->Resolve<INtChannelManager>()->updateChannel(newChannel);
-    }
-    {
-        auto newChannel = container->Resolve<INtChannelManager>()->addChannel();
-        newChannel.type = ChannelSourceType::File;
-        newChannel.enable = true;
-        newChannel.source = "E:\\testVideo\\shapes\\cut_files\\circleobjects.mkv";
-        ;
-        auto isUpdate = container->Resolve<INtChannelManager>()->updateChannel(newChannel);
-    }
-
-    // start service and loop
+       // start service and loop
     container->Resolve<INtRtspApp>()->run();
     container->Resolve<IWebServer>()->run();
 }
